@@ -180,15 +180,15 @@
     </div>
 </div>
 
-<script type="module">
+    <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot,
-           query, orderBy, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  // ====== PASTE CONFIG DARI FIREBASE CONSOLE ANDA ======
+  // ====== PASTE CONFIG DARI FIREBASE CONSOLE ======
   const firebaseConfig = {
     apiKey: "GANTI_INI",
     authDomain: "GANTI_INI",
+    databaseURL: "GANTI_INI",  // ← WAJIB untuk Realtime Database! Lihat catatan di bawah
     projectId: "GANTI_INI",
     storageBucket: "GANTI_INI",
     messagingSenderId: "GANTI_INI",
@@ -196,16 +196,16 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const db = getDatabase(app);
 
-  // ====== ID chat unik per pengunjung (tersimpan di browser) ======
+  // ====== ID chat unik per pengunjung ======
   let chatId = localStorage.getItem("chatId");
   if (!chatId) {
     chatId = "chat_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
     localStorage.setItem("chatId", chatId);
   }
 
-  // ====== Elemen UI (ID sama persis dengan HTML Anda) ======
+  // ====== Elemen UI ======
   const btnBukaChat   = document.getElementById('btn-buka-chat');
   const btnTutupChat  = document.getElementById('btn-tutup-chat');
   const jendelaChat   = document.getElementById('jendela-chat');
@@ -213,11 +213,9 @@
   const inputPesan    = document.getElementById('input-pesan-user');
   const chatBody      = document.getElementById('chat-box-messages');
 
-  // ====== Buka / tutup jendela chat ======
   btnBukaChat.addEventListener('click', () => jendelaChat.classList.add('aktif'));
   btnTutupChat.addEventListener('click', () => jendelaChat.classList.remove('aktif'));
 
-  // ====== Fungsi bantu ======
   function formatWaktu(ms) {
     if (!ms || (Date.now() - ms) / 1000 < 60) return "Barusan";
     return new Date(ms).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
@@ -227,7 +225,7 @@
     const bubble = document.createElement('div');
     bubble.classList.add('msg-bubble', pengirim === 'user' ? 'user-msg' : 'admin-msg');
     const p = document.createElement('p');
-    p.textContent = teks; // aman dari injeksi kode
+    p.textContent = teks;
     const span = document.createElement('span');
     span.className = 'msg-time';
     span.textContent = waktu;
@@ -238,20 +236,18 @@
 
   const PESAN_SAMBUTAN = "Halo Kak! Selamat datang di Jasa Pembuatan Aplikasi UMKM. Ada yang bisa kami bantu untuk bisnis Anda hari ini?";
 
-  // ====== KIRIM PESAN → SIMPAN KE FIREBASE ======
+  // ====== KIRIM PESAN → SIMPAN KE REALTIME DATABASE ======
   async function kirimPesan() {
     const teks = inputPesan.value.trim();
     if (teks === "") return;
     inputPesan.value = "";
-
     try {
-      await addDoc(collection(db, "chats", chatId, "messages"), {
+      await push(ref(db, "chats/" + chatId + "/messages"), {
         teks: teks, pengirim: "user", waktu: Date.now()
       });
-      // Ringkasan untuk daftar di halaman admin
-      await setDoc(doc(db, "chats", chatId), {
+      await set(ref(db, "chats/" + chatId + "/info"), {
         lastMessage: teks, lastTime: Date.now()
-      }, { merge: true });
+      });
     } catch (err) {
       alert("Gagal mengirim. Periksa koneksi internet Anda.");
       inputPesan.value = teks;
@@ -262,18 +258,15 @@
   inputPesan.addEventListener('keypress', (e) => { if (e.key === 'Enter') kirimPesan(); });
 
   // ====== TAMPILKAN PESAN REAL-TIME (termasuk balasan admin!) ======
-  onSnapshot(query(collection(db, "chats", chatId, "messages"), orderBy("waktu", "asc")), (snapshot) => {
-    chatBody.innerHTML = ""; // reset supaya tidak dobel
-
+  onValue(ref(db, "chats/" + chatId + "/messages"), (snapshot) => {
+    chatBody.innerHTML = "";
     chatBody.appendChild(buatBubble(PESAN_SAMBUTAN, "admin", "Barusan"));
-
-    snapshot.forEach((docMsg) => {
-      const d = docMsg.data();
+    snapshot.forEach((child) => {
+      const d = child.val();
       chatBody.appendChild(buatBubble(d.teks, d.pengirim, formatWaktu(d.waktu)));
     });
-
     chatBody.scrollTop = chatBody.scrollHeight;
   });
-</script>
+    </script>
 </body>
 </html>
