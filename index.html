@@ -180,68 +180,100 @@
     </div>
 </div>
 
-<script>
-// Ambil elemen-elemen Chat
-const btnBukaChat = document.getElementById('btn-buka-chat');
-const btnTutupChat = document.getElementById('btn-tutup-chat');
-const jendelaChat = document.getElementById('jendela-chat');
-const btnKirimPesan = document.getElementById('btn-kirim-pesan');
-const inputPesanUser = document.getElementById('input-pesan-user');
-const chatBoxMessages = document.getElementById('chat-box-messages');
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot,
+           query, orderBy, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Fungsi Membuka Jendela Chat
-btnBukaChat.addEventListener('click', () => {
-    jendelaChat.classList.add('aktif');
-});
+  // ====== PASTE CONFIG DARI FIREBASE CONSOLE ANDA ======
+  const firebaseConfig = {
+    apiKey: "GANTI_INI",
+    authDomain: "GANTI_INI",
+    projectId: "GANTI_INI",
+    storageBucket: "GANTI_INI",
+    messagingSenderId: "GANTI_INI",
+    appId: "GANTI_INI"
+  };
 
-// Fungsi Menutup Jendela Chat
-btnTutupChat.addEventListener('click', () => {
-    jendelaChat.classList.remove('aktif');
-});
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-// Fungsi Mengirim Pesan Visual ke Layar
-function kirimPesan() {
-    const teksPesan = inputPesanUser.value.trim();
-    if (teksPesan === "") return; // Jangan kirim jika kosong
+  // ====== ID chat unik per pengunjung (tersimpan di browser) ======
+  let chatId = localStorage.getItem("chatId");
+  if (!chatId) {
+    chatId = "chat_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem("chatId", chatId);
+  }
 
-    // Buat elemen balon obrolan user baru
-    const bubbleBaru = document.createElement('div');
-    bubbleBaru.classList.add('msg-bubble', 'user-msg');
-    bubbleBaru.innerHTML = `
-        <p>${teksPesan}</p>
-        <span class="msg-time">Barusan</span>
-    `;
+  // ====== Elemen UI (ID sama persis dengan HTML Anda) ======
+  const btnBukaChat   = document.getElementById('btn-buka-chat');
+  const btnTutupChat  = document.getElementById('btn-tutup-chat');
+  const jendelaChat   = document.getElementById('jendela-chat');
+  const btnKirimPesan = document.getElementById('btn-kirim-pesan');
+  const inputPesan    = document.getElementById('input-pesan-user');
+  const chatBody      = document.getElementById('chat-box-messages');
 
-    // Masukkan ke dalam kotak obrolan
-    chatBoxMessages.appendChild(bubbleBaru);
-    
-    // Bersihkan kotak input
-    inputPesanUser.value = "";
-    
-    // Gulir otomatis ke pesan paling bawah
-    chatBoxMessages.scrollTop = chatBoxMessages.scrollHeight;
+  // ====== Buka / tutup jendela chat ======
+  btnBukaChat.addEventListener('click', () => jendelaChat.classList.add('aktif'));
+  btnTutupChat.addEventListener('click', () => jendelaChat.classList.remove('aktif'));
 
-    // STRATEGI KILAT: Teruskan pesan ini ke sistem/admin Anda setelah 1 detik
-    setTimeout(() => {
-        // Di sini Anda bisa menyambungkannya ke bot otomatis atau integrasi sistem chat nyata
-        const responOtomatis = document.createElement('div');
-        responOtomatis.classList.add('msg-bubble', 'admin-msg');
-        responOtomatis.innerHTML = `
-            <p>Terima kasih sudah menghubungi kami! Pesan Anda telah kami terima. Untuk konsultasi interaktif kilat, Anda juga bisa menekan tombol WhatsApp kami di halaman utama ya Kak. 🙏</p>
-            <span class="msg-time">Barusan</span>
-        `;
-        chatBoxMessages.appendChild(responOtomatis);
-        chatBoxMessages.scrollTop = chatBoxMessages.scrollHeight;
-    }, 1200);
-}
+  // ====== Fungsi bantu ======
+  function formatWaktu(ms) {
+    if (!ms || (Date.now() - ms) / 1000 < 60) return "Barusan";
+    return new Date(ms).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  }
 
-// Jalankan fungsi kirim saat tombol kirim diklik atau tekan enter
-btnKirimPesan.addEventListener('click', kirimPesan);
-inputPesanUser.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        kirimPesan();
+  function buatBubble(teks, pengirim, waktu) {
+    const bubble = document.createElement('div');
+    bubble.classList.add('msg-bubble', pengirim === 'user' ? 'user-msg' : 'admin-msg');
+    const p = document.createElement('p');
+    p.textContent = teks; // aman dari injeksi kode
+    const span = document.createElement('span');
+    span.className = 'msg-time';
+    span.textContent = waktu;
+    bubble.appendChild(p);
+    bubble.appendChild(span);
+    return bubble;
+  }
+
+  const PESAN_SAMBUTAN = "Halo Kak! Selamat datang di Jasa Pembuatan Aplikasi UMKM. Ada yang bisa kami bantu untuk bisnis Anda hari ini?";
+
+  // ====== KIRIM PESAN → SIMPAN KE FIREBASE ======
+  async function kirimPesan() {
+    const teks = inputPesan.value.trim();
+    if (teks === "") return;
+    inputPesan.value = "";
+
+    try {
+      await addDoc(collection(db, "chats", chatId, "messages"), {
+        teks: teks, pengirim: "user", waktu: Date.now()
+      });
+      // Ringkasan untuk daftar di halaman admin
+      await setDoc(doc(db, "chats", chatId), {
+        lastMessage: teks, lastTime: Date.now()
+      }, { merge: true });
+    } catch (err) {
+      alert("Gagal mengirim. Periksa koneksi internet Anda.");
+      inputPesan.value = teks;
     }
-});
+  }
+
+  btnKirimPesan.addEventListener('click', kirimPesan);
+  inputPesan.addEventListener('keypress', (e) => { if (e.key === 'Enter') kirimPesan(); });
+
+  // ====== TAMPILKAN PESAN REAL-TIME (termasuk balasan admin!) ======
+  onSnapshot(query(collection(db, "chats", chatId, "messages"), orderBy("waktu", "asc")), (snapshot) => {
+    chatBody.innerHTML = ""; // reset supaya tidak dobel
+
+    chatBody.appendChild(buatBubble(PESAN_SAMBUTAN, "admin", "Barusan"));
+
+    snapshot.forEach((docMsg) => {
+      const d = docMsg.data();
+      chatBody.appendChild(buatBubble(d.teks, d.pengirim, formatWaktu(d.waktu)));
+    });
+
+    chatBody.scrollTop = chatBody.scrollHeight;
+  });
 </script>
 </body>
 </html>
