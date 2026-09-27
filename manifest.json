@@ -1,1 +1,22 @@
-hdjdjdk
+{
+  "name": "Jasa Pembuatan Aplikasi UMKM",
+  "short_name": "Jasa Aplikasi",
+  "description": "Solusi pembuatan aplikasi mobile dan platform digital untuk UMKM Naik Kelas.",
+  "start_url": "/Jasa-Pembuatan-Aplikasi/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0052cc",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://icons8.com",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://icons8.com",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
