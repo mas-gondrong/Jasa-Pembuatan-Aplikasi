@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jasa Pembuatan Website & Aplikasi Mobile UMKM</title>
+    <!-- Menghubungkan ke Manifest PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0052cc">
+    <!-- Google Fonts & FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://googleapis.com">
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <!-- File CSS Terpisah -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- HEADER / APP BAR -->
+    <header class="app-header">
+        <div class="logo">Web<span>UMKM</span></div>
+        <div class="status-badge"><i class="fa-solid fa-circle-check"></i> PWA Ready</div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero-section" id="beranda">
+        <h1>Bikin Usaha UMKM Anda <span>Naik Kelas</span></h1>
+        <p>Jasa pembuatan website toko online dan aplikasi mobile Android/iOS profesional, cepat, dan ramah kantong pelaku UMKM.</p>
+        <div class="hero-buttons">
+            <a href="#layanan" class="btn-primary">Lihat Paket</a>
+            <a href="https://wa.me" target="_blank" class="btn-secondary"><i class="fa-brands fa-whatsapp"></i> Konsultasi Gratis</a>
+        </div>
+    </section>
+
+    <!-- FITUR UNGGULAN (KELEBIHAN PWA) -->
+    <section class="features-section">
+        <div class="feature-card">
+            <i class="fa-solid fa-bolt"></i>
+            <h3>Super Cepat</h3>
+            <p>Website ringan, langsung terbuka dalam hitungan detik.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+            <h3>Bisa Diinstal</h3>
+            <p>Klien Anda bisa pasang website ini langsung di layar HP mereka.</p>
+        </div>
+    </section>
+
+    <!-- LAYANAN & HARGA -->
+    <section class="services-section" id="layanan">
+        <h2 class="section-title">Paket Layanan Kami</h2>
+        
+        <div class="price-grid">
+            <!-- Paket 1 -->
+            <div class="price-card">
+                <div class="badge">Populer</div>
+                <h3>Website Toko Online</h3>
+                <div class="price">Rp 1.499.000</div>
+                <ul>
+                    <li><i class="fa-solid fa-check"></i> Domain .com / .id (1 Thn)</li>
+                    <li><i class="fa-solid fa-check"></i> Integrasi Hitung Ongkir Otomatis</li>
+                    <li><i class="fa-solid fa-check"></i> Siap Pakai & Mudah Dikelola</li>
+                    <li><i class="fa-solid fa-check"></i> Fitur PWA (Bisa Diinstal)</li>
+                </ul>
+                <a href="https://wa.me?text=Halo,%20saya%20tertarik%20Paket%20Toko%20Online" class="btn-card" target="_blank">Pesan Sekarang</a>
+            </div>
+
+            <!-- Paket 2 -->
+            <div class="price-card premium">
+                <h3>Aplikasi Android + iOS</h3>
+                <div class="price">Rp 3.999.000</div>
+                <ul>
+                    <li><i class="fa-solid fa-check"></i> Desain Custom Premium</li>
+                    <li><i class="fa-solid fa-check"></i> Rilis di Google Play Store</li>
+                    <li><i class="fa-solid fa-check"></i> Fitur Push Notification</li>
+                    <li><i class="fa-solid fa-check"></i> Gratis Maintenance 3 Bulan</li>
+                </ul>
+                <a href="https://wa.me?text=Halo,%20saya%20tertarik%20Paket%20Aplikasi" class="btn-card btn-premium" target="_blank">Hubungi Kami</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- PORTFOLIO -->
+    <section class="portfolio-section" id="portofolio">
+        <h2 class="section-title">Portofolio Terbaru</h2>
+        <div class="portfolio-grid">
+            <div class="portfolio-item">
+                <div class="portfolio-img-mock">🌐 Aplikasi Resto Online</div>
+                <h4>Catering Makmur (Website)</h4>
+            </div>
+            <div class="portfolio-item">
+                <div class="portfolio-img-mock">📱 App Fashion Hijab</div>
+                <h4>Zoya Boutique (Mobile App)</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOTTOM NAVIGATION (Gaya Aplikasi Mobile) -->
+    <nav class="bottom-nav">
+        <a href="#beranda" class="nav-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Beranda</span>
+        </a>
+        <a href="#layanan" class="nav-item">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Layanan</span>
+        </a>
+        <a href="#portofolio" class="nav-item">
+            <i class="fa-solid fa-briefcase"></i>
+            <span>Portofolio</span>
+        </a>
+        <a href="https://wa.me" class="nav-item" target="_blank">
+            <i class="fa-brands fa-whatsapp text-success"></i>
+            <span>Chat</span>
+        </a>
+    </nav>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA Service Worker Aktif!', reg))
+                    .catch(err => console.log('Gagal daftar SW:', err));
+            });
+        }
+
+        // Script sederhana untuk interaksi tombol aktif di Bottom Nav
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
