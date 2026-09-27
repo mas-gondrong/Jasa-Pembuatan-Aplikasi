@@ -117,9 +117,13 @@
       const btn  = document.createElement('button');
       btn.className = 'chat-item' + (child.key === chatAktif ? ' aktif' : '');
       const b = document.createElement('b');
-      b.textContent = "💬 Pengunjung";
+      const jam = info.lastTime
+        ? " • " + new Date(info.lastTime).toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })
+        : "";
+      b.textContent = "💬 Pengunjung" + jam;              // contoh: "💬 Pengunjung • 23.45"
       const small = document.createElement('small');
-      small.textContent = info.lastMessage || "(belum ada pesan)";
+      small.textContent = "#" + child.key.slice(-6) + " — " +   // ID singkat, bisa dicocokkan
+                          (info.lastMessage || "(belum ada pesan)");  // dengan isi database
       btn.appendChild(b); btn.appendChild(small);
       btn.onclick = () => bukaChat(child.key);
       daftarEl.appendChild(btn);
