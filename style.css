@@ -476,15 +476,16 @@ body {
     transform: translateY(0);
 }
 
-/* Bagian Atas / Header Chat */
+/* PERBAIKAN HEADER CHAT AGAR TOMBOL KEMBALI MUNCUL DI HP */
 .chat-header {
     background-color: #0052cc;
     color: white;
-    padding: 15px 20px;
+    padding: 20px 20px 15px 20px; /* Ditambah padding atas agar tidak terlalu mepet ke atas layar */
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding-top: calc(env(safe-area-inset-top) + 20px); /* Menghitung jarak aman kamera HP modern */
 }
 
 .admin-profile {
@@ -525,12 +526,24 @@ body {
     display: inline-block;
 }
 
+/* Memperbesar tombol silang (Back) agar gampang di-klik jempol */
 .btn-tutup-chat {
-    background: none;
+    background: rgba(255, 255, 255, 0.15); /* Memberi latar belakang lingkaran tipis agar estetik */
     border: none;
     color: white;
-    font-size: 22px;
+    font-size: 20px;
     cursor: pointer;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.btn-tutup-chat:active {
+    background: rgba(255, 255, 255, 0.3); /* Efek umpan balik saat ditekan */
 }
 
 /* Area Tempat Obrolan Berlangsung */
