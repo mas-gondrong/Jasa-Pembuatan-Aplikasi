@@ -200,7 +200,7 @@
             });
         });
 
-        // ========================================================
+                // ========================================================
         // C. INTEGRASI LAYANAN REAL-TIME DATABASE FIREBASE
         // ========================================================
         
@@ -208,7 +208,7 @@
         import { initializeApp } from "https://gstatic.com";
         import { getDatabase, ref, push, onChildAdded } from "https://gstatic.com";
 
-        // Konfigurasi rahasia Firebase Anda (Sudah Disesuaikan Berdasarkan Foto Konsol Anda)
+        // Konfigurasi rahasia Firebase Anda
         const firebaseConfig = {
   apiKey: "AIzaSyA3C3BpjOrEA16sop2uIIo52pVvFtAyEDQ",
   authDomain: "jasa-pembuatan-aplikasi-batam.firebaseapp.com",
@@ -224,80 +224,73 @@
         const db = getDatabase(app);
         const chatRef = ref(db, "pesan_konsultasi");
 
-        // Menunggu seluruh elemen HTML siap
-        document.addEventListener("DOMContentLoaded", () => {
-            const btnBukaChat = document.getElementById('btn-buka-chat');
-            const btnTutupChat = document.getElementById('btn-tutup-chat');
-            const jendelaChat = document.getElementById('jendela-chat');
-            const btnKirimPesan = document.getElementById('btn-kirim-pesan');
-            const inputPesanUser = document.getElementById('input-pesan-user');
-            const chatBoxMessages = document.getElementById('chat-box-messages');
+        // Deklarasi Element HTML secara langsung (Tanpa DOMContentLoaded pembungkus)
+        const btnBukaChat = document.getElementById('btn-buka-chat');
+        const btnTutupChat = document.getElementById('btn-tutup-chat');
+        const jendelaChat = document.getElementById('jendela-chat');
+        const btnKirimPesan = document.getElementById('btn-kirim-pesan');
+        const inputPesanUser = document.getElementById('input-pesan-user');
+        const chatBoxMessages = document.getElementById('chat-box-messages');
 
-            // Kontrol Membuka Jendela Chat
-            if (btnBukaChat && jendelaChat) {
-                btnBukaChat.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    jendelaChat.classList.add('aktif');
-                });
-            }
-
-            // Kontrol Menutup Jendela Chat
-            if (btnTutupChat && jendelaChat) {
-                btnTutupChat.addEventListener('click', () => {
-                    jendelaChat.classList.remove('aktif');
-                });
-            }
-
-            // Fungsi Mengirim Data Pesan Pengunjung ke Server Firebase
-            function kirimPesanKeFirebase() {
-                const teksPesan = inputPesanUser.value.trim();
-                if (teksPesan === "") return;
-
-                const dataPesan = {
-                    pengirim: "pengunjung", // Otomatis sebagai tanda ketikan klien
-                    teks: teksPesan,
-                    waktu: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                };
-
-                // Dorong data masuk ke database cloud
-                push(chatRef, dataPesan);
-                inputPesanUser.value = ""; // Kosongkan kolom input
-            }
-
-            if (btnKirimPesan) {
-                btnKirimPesan.addEventListener('click', kirimPesanKeFirebase);
-            }
-            if (inputPesanUser) {
-                inputPesanUser.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        kirimPesanKeFirebase();
-                    }
-                });
-            }
-
-            // Fungsi Otomatis Mendengar Data Baru Masuk ke Firebase
-            // Setiap ada ketikan (baik dari Anda maupun klien), baris ini langsung menampilkannya di layar HP tanpa perlu refresh halaman!
-            onChildAdded(chatRef, (snapshot) => {
-                const data = snapshot.val();
-                
-                // Cari tahu apakah ada sisa gelembung chat teks "Barusan" palsu di layar, lalu hapus jika ada agar tidak duplikat
-                const temporaryBubbles = chatBoxMessages.querySelectorAll('.msg-bubble');
-                
-                const bubbleBaru = document.createElement('div');
-                if (data.pengirim === "admin") {
-                    bubbleBaru.classList.add('msg-bubble', 'admin-msg');
-                } else {
-                    bubbleBaru.classList.add('msg-bubble', 'user-msg');
-                }
-
-                bubbleBaru.innerHTML = `
-                    <p>${data.teks}</p>
-                    <span class="msg-time">${data.waktu}</span>
-                `;
-
-                chatBoxMessages.appendChild(bubbleBaru);
-                chatBoxMessages.scrollTop = chatBoxMessages.scrollHeight; // Gulir layar otomatis ke bawah
+        // Perintah membuka jendela chat (Langsung aktif)
+        if (btnBukaChat && jendelaChat) {
+            btnBukaChat.addEventListener('click', (e) => {
+                e.preventDefault();
+                jendelaChat.classList.add('aktif');
             });
+        }
+
+        // Perintah menutup jendela chat (Langsung aktif)
+        if (btnTutupChat && jendelaChat) {
+            btnTutupChat.addEventListener('click', () => {
+                jendelaChat.classList.remove('aktif');
+            });
+        }
+
+        // Fungsi Mengirim Data Pesan Pengunjung ke Server Firebase
+        function kirimPesanKeFirebase() {
+            const teksPesan = inputPesanUser.value.trim();
+            if (teksPesan === "") return;
+
+            const dataPesan = {
+                pengirim: "pengunjung",
+                teks: teksPesan,
+                waktu: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            push(chatRef, dataPesan);
+            inputPesanUser.value = ""; // Kosongkan kolom input
+        }
+
+        if (btnKirimPesan) {
+            btnKirimPesan.addEventListener('click', kirimPesanKeFirebase);
+        }
+        if (inputPesanUser) {
+            inputPesanUser.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    kirimPesanKeFirebase();
+                }
+            });
+        }
+
+        // Fungsi Otomatis Mendengar Data Baru Masuk ke Firebase secara Live
+        onChildAdded(chatRef, (snapshot) => {
+            const data = snapshot.val();
+            const bubbleBaru = document.createElement('div');
+            
+            if (data.pengirim === "admin") {
+                bubbleBaru.classList.add('msg-bubble', 'admin-msg');
+            } else {
+                bubbleBaru.classList.add('msg-bubble', 'user-msg');
+            }
+
+            bubbleBaru.innerHTML = `
+                <p>${data.teks}</p>
+                <span class="msg-time">${data.waktu}</span>
+            `;
+
+            chatBoxMessages.appendChild(bubbleBaru);
+            chatBoxMessages.scrollTop = chatBoxMessages.scrollHeight; // Gulir otomatis ke bawah
         });
     </script>
 </body>
