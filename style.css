@@ -425,3 +425,33 @@ body {
 .portfolio-card-new:hover .btn-view-demo {
     gap: 10px; /* Efek interaktif panah bergeser sedikit */
 }
+
+/* =======================================================
+   TAMBAHAN KODE BARU UNTUK FOTO LATAR BELAKANG PORTOFOLIO 
+   ======================================================= */
+
+#portofolio-ac {
+    background-image: url('bg-service-ac.jpg'); /* Pastikan nama file ini sesuai yang Anda upload di GitHub */
+    background-size: cover;
+    background-position: center;
+}
+
+#portofolio-fashion {
+    background-image: url('bg-fashion.jpg'); /* Pastikan nama file ini sesuai yang Anda upload di GitHub */
+    background-size: cover;
+    background-position: center;
+}
+
+/* Mengubah teks judul di atas foto agar berwarna putih dan mudah dibaca */
+.portfolio-graphic {
+    color: #ffffff !important; 
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7); /* Memberikan bayangan hitam tipis agar teks kontras */
+}
+.premium-graphic {
+    color: #ffffff !important;
+}
+
+/* Mempergelap lapisan transparan di atas foto agar tulisan tidak tenggelam */
+.portfolio-bg-overlay {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5));
+}
