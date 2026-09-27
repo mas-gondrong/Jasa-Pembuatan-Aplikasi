@@ -315,3 +315,10 @@ body {
         transform: translateX(-50%);
     }
 }
+
+.portfolio-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
