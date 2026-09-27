@@ -141,10 +141,11 @@
             <i class="fa-solid fa-briefcase"></i>
             <span>Portofolio</span>
         </a>
-        <a href="https://wa.me/6283879387000" class="nav-item" target="_blank">
-            <i class="fa-brands fa-whatsapp text-success"></i>
-            <span>Chat</span>
-        </a>
+        <!-- Cari tombol Chat di Bottom Nav, lalu ubah jadi seperti ini -->
+<a href="javascript:void(0)" class="nav-item" id="btn-buka-chat">
+    <i class="fa-solid fa-comments text-success"></i>
+    <span>Chat Admin</span>
+</a>
     </nav>
 
     <!-- PWA Service Worker Registration -->
@@ -165,6 +166,98 @@
                 this.classList.add('active');
             });
         });
+
+        // Ambil elemen-elemen Chat
+const btnBukaChat = document.getElementById('btn-buka-chat');
+const btnTutupChat = document.getElementById('btn-tutup-chat');
+const jendelaChat = document.getElementById('jendela-chat');
+const btnKirimPesan = document.getElementById('btn-kirim-pesan');
+const inputPesanUser = document.getElementById('input-pesan-user');
+const chatBoxMessages = document.getElementById('chat-box-messages');
+
+// Fungsi Membuka Jendela Chat
+btnBukaChat.addEventListener('click', () => {
+    jendelaChat.classList.add('aktif');
+});
+
+// Fungsi Menutup Jendela Chat
+btnTutupChat.addEventListener('click', () => {
+    jendelaChat.classList.remove('aktif');
+});
+
+// Fungsi Mengirim Pesan Visual ke Layar
+function kirimPesan() {
+    const teksPesan = inputPesanUser.value.trim();
+    if (teksPesan === "") return; // Jangan kirim jika kosong
+
+    // Buat elemen balon obrolan user baru
+    const bubbleBaru = document.createElement('div');
+    bubbleBaru.classList.add('msg-bubble', 'user-msg');
+    bubbleBaru.innerHTML = `
+        <p>${teksPesan}</p>
+        <span class="msg-time">Barusan</span>
+    `;
+
+    // Masukkan ke dalam kotak obrolan
+    chatBoxMessages.appendChild(bubbleBaru);
+    
+    // Bersihkan kotak input
+    inputPesanUser.value = "";
+    
+    // Gulir otomatis ke pesan paling bawah
+    chatBoxMessages.scrollTop = chatBoxMessages.scrollHeight;
+
+    // STRATEGI KILAT: Teruskan pesan ini ke sistem/admin Anda setelah 1 detik
+    setTimeout(() => {
+        // Di sini Anda bisa menyambungkannya ke bot otomatis atau integrasi sistem chat nyata
+        const responOtomatis = document.createElement('div');
+        responOtomatis.classList.add('msg-bubble', 'admin-msg');
+        responOtomatis.innerHTML = `
+            <p>Terima kasih sudah menghubungi kami! Pesan Anda telah kami terima. Untuk konsultasi interaktif kilat, Anda juga bisa menekan tombol WhatsApp kami di halaman utama ya Kak. 🙏</p>
+            <span class="msg-time">Barusan</span>
+        `;
+        chatBoxMessages.appendChild(responOtomatis);
+        chatBoxMessages.scrollTop = chatBoxMessages.scrollHeight;
+    }, 1200);
+}
+
+// Jalankan fungsi kirim saat tombol kirim diklik atau tekan enter
+btnKirimPesan.addEventListener('click', kirimPesan);
+inputPesanUser.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        kirimPesan();
+   }
+});
     </script>
+    
+    <!-- HALAMAN LIVE CHAT FULL-SCREEN -->
+<div class="chat-fullscreen-overlay" id="jendela-chat">
+    <!-- Header Chat -->
+    <div class="chat-header">
+        <div class="admin-profile">
+            <div class="avatar-online">💬</div>
+            <div>
+                <h4>Admin Jasa Aplikasi</h4>
+                <p><span class="dot-online"></span> Online (Balas Cepat)</p>
+            </div>
+        </div>
+        <button class="btn-tutup-chat" id="btn-tutup-chat"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Area Pesan (Isi Obrolan) -->
+    <div class="chat-body" id="chat-box-messages">
+        <div class="msg-bubble admin-msg">
+            <p>Halo Kak! Selamat datang di Jasa Pembuatan Aplikasi UMKM. Ada yang bisa kami bantu untuk bisnis Anda hari ini?</p>
+            <span class="msg-time">Barusan</span>
+        </div>
+        <!-- Pesan dari user akan muncul di sini secara otomatis -->
+    </div>
+
+    <!-- Kotak Input Pesan di Bagian Bawah -->
+    <div class="chat-footer">
+        <input type="text" id="input-pesan-user" placeholder="Ketik pesan konsultasi Anda..." autocomplete="off">
+        <button id="btn-kirim-pesan"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
 </body>
 </html>
