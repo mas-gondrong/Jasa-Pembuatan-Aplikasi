@@ -148,6 +148,38 @@
 </a>
     </nav>
 
+    <!-- HALAMAN LIVE CHAT FULL-SCREEN -->
+<div class="chat-fullscreen-overlay" id="jendela-chat">
+    <!-- Header Chat -->
+    <div class="chat-header">
+        <div class="admin-profile">
+            <div class="avatar-online">💬</div>
+            <div>
+                <h4>Admin Jasa Aplikasi</h4>
+                <p><span class="dot-online"></span> Online (Balas Cepat)</p>
+            </div>
+        </div>
+        <button class="btn-tutup-chat" id="btn-tutup-chat"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+
+    <!-- Area Pesan (Isi Obrolan) -->
+    <div class="chat-body" id="chat-box-messages">
+        <div class="msg-bubble admin-msg">
+            <p>Halo Kak! Selamat datang di Jasa Pembuatan Aplikasi UMKM. Ada yang bisa kami bantu untuk bisnis Anda hari ini?</p>
+            <span class="msg-time">Barusan</span>
+        </div>
+        <!-- Pesan dari user akan muncul di sini secara otomatis -->
+    </div>
+
+
+    <!-- Kotak Input Pesan di Bagian Bawah -->
+    <div class="chat-footer">
+        <input type="text" id="input-pesan-user" placeholder="Ketik pesan konsultasi Anda..." autocomplete="off">
+        <button id="btn-kirim-pesan"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
     <!-- PWA Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
@@ -229,35 +261,5 @@ inputPesanUser.addEventListener('keypress', (e) => {
    }
 });
     </script>
-    
-    <!-- HALAMAN LIVE CHAT FULL-SCREEN -->
-<div class="chat-fullscreen-overlay" id="jendela-chat">
-    <!-- Header Chat -->
-    <div class="chat-header">
-        <div class="admin-profile">
-            <div class="avatar-online">💬</div>
-            <div>
-                <h4>Admin Jasa Aplikasi</h4>
-                <p><span class="dot-online"></span> Online (Balas Cepat)</p>
-            </div>
-        </div>
-        <button class="btn-tutup-chat" id="btn-tutup-chat"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-
-    <!-- Area Pesan (Isi Obrolan) -->
-    <div class="chat-body" id="chat-box-messages">
-        <div class="msg-bubble admin-msg">
-            <p>Halo Kak! Selamat datang di Jasa Pembuatan Aplikasi UMKM. Ada yang bisa kami bantu untuk bisnis Anda hari ini?</p>
-            <span class="msg-time">Barusan</span>
-        </div>
-        <!-- Pesan dari user akan muncul di sini secara otomatis -->
-    </div>
-
-    <!-- Kotak Input Pesan di Bagian Bawah -->
-    <div class="chat-footer">
-        <input type="text" id="input-pesan-user" placeholder="Ketik pesan konsultasi Anda..." autocomplete="off">
-        <button id="btn-kirim-pesan"><i class="fa-solid fa-paper-plane"></i></button>
-    </div>
-</div>
 </body>
 </html>
