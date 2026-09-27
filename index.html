@@ -180,7 +180,7 @@
     </div>
 </div>
 
-       <!-- 2. SEMUA JAVASCRIPT DIKUMPULKAN DI DALAM SATU TAG SCRIPT MODERN (MENGGUNAKAN TYPE="MODULE") -->
+        <!-- 2. SEMUA JAVASCRIPT DIKUMPULKAN DI DALAM SATU TAG SCRIPT MODERN (MENGGUNAKAN TYPE="MODULE") -->
     <script type="module">
         // A. PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
@@ -200,31 +200,31 @@
             });
         });
 
-                // ========================================================
+        // ========================================================
         // C. INTEGRASI LAYANAN REAL-TIME DATABASE FIREBASE
         // ========================================================
         
-        // Impor pustaka resmi Firebase via CDN yang ringan
+        // JALUR CDN FIREBASE SUDAH DIPERBAIKI SECARA LENGKAP DI BAWAH INI:
         import { initializeApp } from "https://gstatic.com";
         import { getDatabase, ref, push, onChildAdded } from "https://gstatic.com";
 
         // Konfigurasi rahasia Firebase Anda
         const firebaseConfig = {
-  apiKey: "AIzaSyA3C3BpjOrEA16sop2uIIo52pVvFtAyEDQ",
-  authDomain: "jasa-pembuatan-aplikasi-batam.firebaseapp.com",
-  databaseURL: "https://jasa-pembuatan-aplikasi-batam-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "jasa-pembuatan-aplikasi-batam",
-  storageBucket: "jasa-pembuatan-aplikasi-batam.firebasestorage.app",
-  messagingSenderId: "30894586214",
-  appId: "1:30894586214:web:def6ccb3da69ebc26e30a7"
-};
+            apiKey: "AIzaSyA3C3BpjOrEA16sop2uIIo52pVvFtAyEDQ",
+            authDomain: "jasa-pembuatan-aplikasi-batam.firebaseapp.com",
+            databaseURL: "https://jasa-pembuatan-aplikasi-batam-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "jasa-pembuatan-aplikasi-batam",
+            storageBucket: "jasa-pembuatan-aplikasi-batam.firebasestorage.app",
+            messagingSenderId: "30894586214",
+            appId: "1:30894586214:web:def6ccb3da69ebc26e30a7"
+        };
 
         // Kunci koneksi ke server database
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const chatRef = ref(db, "pesan_konsultasi");
 
-        // Deklarasi Element HTML secara langsung (Tanpa DOMContentLoaded pembungkus)
+        // Deklarasi Element HTML secara langsung
         const btnBukaChat = document.getElementById('btn-buka-chat');
         const btnTutupChat = document.getElementById('btn-tutup-chat');
         const jendelaChat = document.getElementById('jendela-chat');
@@ -232,7 +232,7 @@
         const inputPesanUser = document.getElementById('input-pesan-user');
         const chatBoxMessages = document.getElementById('chat-box-messages');
 
-        // Perintah membuka jendela chat (Langsung aktif)
+        // Perintah membuka jendela chat
         if (btnBukaChat && jendelaChat) {
             btnBukaChat.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -240,7 +240,7 @@
             });
         }
 
-        // Perintah menutup jendela chat (Langsung aktif)
+        // Perintah menutup jendela chat
         if (btnTutupChat && jendelaChat) {
             btnTutupChat.addEventListener('click', () => {
                 jendelaChat.classList.remove('aktif');
