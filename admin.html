@@ -39,13 +39,11 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot,
-           query, orderBy, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getDatabase, ref, push, set, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = { /* SAMAKAN dengan index.html */ };
-
   const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const db = getDatabase(app);
 
   const daftarEl = document.getElementById('daftar-chat');
   const pesanEl  = document.getElementById('pesan-admin');
@@ -54,41 +52,42 @@
 
   let chatAktif = null, berhentiDengar = null;
 
-  // ====== Daftar semua pengunjung yang pernah chat ======
-  onSnapshot(query(collection(db, "chats"), orderBy("lastTime", "desc")), (snapshot) => {
+  // ====== Daftar semua pengunjung (terbaru di atas) ======
+  onValue(query(ref(db, "chats"), orderByChild("info/lastTime")), (snapshot) => {
+    const daftar = [];
+    snapshot.forEach((child) => daftar.push(child));
+    daftar.reverse();
+
     daftarEl.innerHTML = "";
-    snapshot.forEach((d) => {
-      const data = d.data();
+    daftar.forEach((child) => {
+      const info = child.val().info || {};
       const btn = document.createElement('button');
-      btn.className = 'chat-item' + (d.id === chatAktif ? ' aktif' : '');
+      btn.className = 'chat-item' + (child.key === chatAktif ? ' aktif' : '');
       const small = document.createElement('small');
-      small.textContent = d.id;
+      small.textContent = child.key;
       const span = document.createElement('span');
-      span.textContent = data.lastMessage || "(belum ada pesan)";
+      span.textContent = info.lastMessage || "(belum ada pesan)";
       btn.appendChild(small); btn.appendChild(span);
-      btn.onclick = () => bukaChat(d.id);
+      btn.onclick = () => bukaChat(child.key);
       daftarEl.appendChild(btn);
     });
   });
 
-  // ====== Buka satu chat + dengarkan pesannya real-time ======
+  // ====== Buka satu chat + dengarkan real-time ======
   function bukaChat(id) {
     chatAktif = id;
     if (berhentiDengar) berhentiDengar();
-    berhentiDengar = onSnapshot(
-      query(collection(db, "chats", id, "messages"), orderBy("waktu", "asc")),
-      (snap) => {
-        pesanEl.innerHTML = "";
-        snap.forEach((m) => {
-          const d = m.data();
-          const div = document.createElement('div');
-          div.className = 'baris ' + d.pengirim;
-          div.textContent = (d.pengirim === 'admin' ? '👨‍💼 Anda: ' : '👤 Pengunjung: ') + d.teks;
-          pesanEl.appendChild(div);
-        });
-        pesanEl.scrollTop = pesanEl.scrollHeight;
-      }
-    );
+    berhentiDengar = onValue(ref(db, "chats/" + id + "/messages"), (snap) => {
+      pesanEl.innerHTML = "";
+      snap.forEach((child) => {
+        const d = child.val();
+        const div = document.createElement('div');
+        div.className = 'baris ' + d.pengirim;
+        div.textContent = (d.pengirim === 'admin' ? '👨‍💼 Anda: ' : '👤 Pengunjung: ') + d.teks;
+        pesanEl.appendChild(div);
+      });
+      pesanEl.scrollTop = pesanEl.scrollHeight;
+    });
   }
 
   // ====== Kirim balasan admin ======
@@ -96,14 +95,14 @@
     e.preventDefault();
     const teks = inputEl.value.trim();
     if (!teks || !chatAktif) return;
-    await addDoc(collection(db, "chats", chatAktif, "messages"), {
+    await push(ref(db, "chats/" + chatAktif + "/messages"), {
       teks: teks, pengirim: "admin", waktu: Date.now()
     });
-    await setDoc(doc(db, "chats", chatAktif), {
+    await set(ref(db, "chats/" + chatAktif + "/info"), {
       lastMessage: "Admin: " + teks, lastTime: Date.now()
-    }, { merge: true });
+    });
     inputEl.value = "";
   });
-</script>
+  </script>
 </body>
 </html>
