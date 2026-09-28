@@ -257,15 +257,25 @@
   btnKirimPesan.addEventListener('click', kirimPesan);
   inputPesan.addEventListener('keypress', (e) => { if (e.key === 'Enter') kirimPesan(); });
 
-  // ====== TAMPILKAN PESAN REAL-TIME (termasuk balasan admin!) ======
-  onValue(ref(db, "chats/" + chatId + "/messages"), (snapshot) => {
-    chatBody.innerHTML = "";
-    chatBody.appendChild(buatBubble(PESAN_SAMBUTAN, "admin", "Barusan"));
-    snapshot.forEach((child) => {
-      const d = child.val();
-      chatBody.appendChild(buatBubble(d.teks, d.pengirim, formatWaktu(d.waktu)));
+    // ====== TAMPILKAN PESAN REAL-TIME (termasuk balasan admin!) ======
+  let hentikanChat = null;
+  function pasangChat() {
+    if (hentikanChat) hentikanChat();
+    hentikanChat = onValue(ref(db, "chats/" + chatId + "/messages"), (snapshot) => {
+      chatBody.innerHTML = "";
+      chatBody.appendChild(buatBubble(PESAN_SAMBUTAN, "admin", "Barusan"));
+      snapshot.forEach((child) => {
+        const d = child.val();
+        chatBody.appendChild(buatBubble(d.teks, d.pengirim, formatWaktu(d.waktu)));
+      });
+      chatBody.scrollTop = chatBody.scrollHeight;
     });
-    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+  pasangChat();
+
+  // Pengunjung kembali ke tab → langsung ambil data terbaru
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') pasangChat();
   });
     </script>
 </body>
