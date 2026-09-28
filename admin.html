@@ -3,19 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Chat v4 — Jasa Aplikasi UMKM</title>
+<title>Admin Chat v5 — Jasa Aplikasi UMKM</title>
 <style>
   * { box-sizing: border-box; font-family: system-ui, sans-serif; margin: 0; }
   body { background: #f0f2f5; }
   header { background: #0052cc; color: #fff; padding: 12px 16px; }
   header h1 { font-size: 16px; }
-  #status { font-size: 11px; opacity: .95; margin-top: 4px; word-break: break-all; }
   .versi { background: #ffd700; color: #333; font-size: 11px; padding: 1px 8px;
            border-radius: 10px; font-weight: bold; margin-left: 6px; vertical-align: middle; }
+  #status { font-size: 11px; opacity: .95; margin-top: 4px; word-break: break-all; }
+  #info-bar { background: #003d99; color: #fff; padding: 8px 16px; font-size: 13px;
+              display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  #jumlah { font-size: 16px; font-weight: bold; }
+  #btn-refresh { background: #fff; color: #0052cc; border: none; padding: 6px 12px;
+                 border-radius: 16px; font-weight: bold; cursor: pointer; font-size: 12px; }
+  #update-waktu { font-size: 10px; opacity: .85; }
   .wrap { display: flex; max-width: 1000px; margin: 0 auto; }
 
-  #daftar-chat { width: 100%; background: #fff; min-height: calc(100vh - 64px); }
-  #panel { display: none; flex-direction: column; width: 100%; height: calc(100vh - 64px); background: #fff; }
+  #daftar-chat { width: 100%; background: #fff; min-height: calc(100vh - 110px); }
+  #panel { display: none; flex-direction: column; width: 100%; height: calc(100vh - 110px); background: #fff; }
   body.mode-chat #daftar-chat { display: none; }
   body.mode-chat #panel { display: flex; }
   #btn-kembali { display: block; width: 100%; padding: 10px; border: none;
@@ -23,8 +29,8 @@
 
   @media (min-width: 768px) {
     .wrap { padding: 20px; gap: 15px; }
-    #daftar-chat { width: 340px; min-height: auto; height: calc(100vh - 104px); border-radius: 12px; overflow: hidden; }
-    #panel { display: flex; flex: 1; border-radius: 12px; height: calc(100vh - 104px); }
+    #daftar-chat { width: 340px; min-height: auto; height: calc(100vh - 150px); border-radius: 12px; overflow: hidden; }
+    #panel { display: flex; flex: 1; border-radius: 12px; height: calc(100vh - 150px); }
     body.mode-chat #daftar-chat { display: block; }
     #btn-kembali { display: none; }
   }
@@ -55,9 +61,15 @@
 <body>
 
 <header>
-  <h1>💬 Admin Chat <span class="versi">v4</span></h1>
-  <div id="status">⏳ Menghubungkan ke database...</div>
+  <h1>💬 Admin Chat <span class="versi">v5</span></h1>
+  <div id="status">⏳ Menghubungkan...</div>
 </header>
+
+<div id="info-bar">
+  <span id="jumlah">Pengunjung: ...</span>
+  <button id="btn-refresh">🔄 Muat Ulang</button>
+  <span id="update-waktu"></span>
+</div>
 
 <div class="wrap">
   <div id="daftar-chat"><p class="kosong">Memuat daftar chat...</p></div>
@@ -75,51 +87,59 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  // ====== WAJIB: SAMAKAN PERSIS dengan index.html ======
   const firebaseConfig = {
-  apiKey: "AIzaSyA3C3BpjOrEA16sop2uIIo52pVvFtAyEDQ",
-  authDomain: "jasa-pembuatan-aplikasi-batam.firebaseapp.com",
-  databaseURL: "https://jasa-pembuatan-aplikasi-batam-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "jasa-pembuatan-aplikasi-batam",
-  storageBucket: "jasa-pembuatan-aplikasi-batam.firebasestorage.app",
-  messagingSenderId: "30894586214",
-  appId: "1:30894586214:web:def6ccb3da69ebc26e30a7"
-};
+    apiKey: "AIzaSyA3C3BpjOrEA16sop2uIIo52pVvFtAyEDQ",
+    authDomain: "jasa-pembuatan-aplikasi-batam.firebaseapp.com",
+    databaseURL: "https://jasa-pembuatan-aplikasi-batam-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "jasa-pembuatan-aplikasi-batam",
+    storageBucket: "jasa-pembuatan-aplikasi-batam.firebasestorage.app",
+    messagingSenderId: "30894586214",
+    appId: "1:30894586214:web:def6ccb3da69ebc26e30a7"
+  };
 
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
 
   const statusEl   = document.getElementById('status');
+  const jumlahEl   = document.getElementById('jumlah');
+  const waktuEl    = document.getElementById('update-waktu');
+  const btnRefresh = document.getElementById('btn-refresh');
   const daftarEl   = document.getElementById('daftar-chat');
   const pesanEl    = document.getElementById('pesan-admin');
   const form       = document.getElementById('form-admin');
   const inputEl    = document.getElementById('input-admin');
   const btnKembali = document.getElementById('btn-kembali');
 
-  let chatAktif = null, berhentiDengar = null;
+  let chatAktif = null, berhentiDengar = null, berhentiDaftar = null;
 
-  // ====== DAFTAR SEMUA PENGUNJUNG ======
-  onValue(ref(db, "chats"), (snapshot) => {
-    const daftar = [];
-    snapshot.forEach(child => daftar.push(child));
-    daftar.sort((a, b) =>
-      ((b.val().info || {}).lastTime || 0) - ((a.val().info || {}).lastTime || 0)
-    );
+  // ====== 1. LAMPU INDIKATOR: hidup/mati koneksi realtime ======
+  onValue(ref(db, ".info/connected"), (s) => {
+    statusEl.textContent = (s.val() ? "🟢 Realtime aktif — " : "🔴 Koneksi putus — ") + firebaseConfig.databaseURL;
+  });
 
-    // ⭐ Diagnostik: database mana yang dibaca + jumlah total
-    statusEl.textContent = "✅ DB: " + (firebaseConfig.databaseURL || "TIDAK DISET!") +
-                           " • Pengunjung: " + daftar.length;
+  // ====== 2. DAFTAR PENGGUNJUNG (bisa dipasang ulang kapan saja) ======
+  function pasangDaftar() {
+    if (berhentiDaftar) berhentiDaftar();   // lepas listener lama, pasang baru = data segar
+    berhentiDaftar = onValue(ref(db, "chats"), (snapshot) => {
+      const daftar = [];
+      snapshot.forEach(child => daftar.push(child));
+      daftar.sort((a, b) =>
+        (((b.val() || {}).info || {}).lastTime || 0) - (((a.val() || {}).info || {}).lastTime || 0)
+      );
 
-    daftarEl.innerHTML = "";
-    if (daftar.length === 0) {
-      daftarEl.innerHTML = "<p class='kosong'>Terhubung, tapi database ini kosong.<br><br>Jika di Firebase Console ada data, berarti config di file ini beda dengan index.html!</p>";
-      return;
-    }
+      jumlahEl.textContent = "Pengunjung: " + daftar.length;
+      waktuEl.textContent  = "Update: " + new Date().toLocaleTimeString("id-ID");
 
-    daftar.forEach(child => {
-      try {
-        const info = child.val().info || {};
-        const jumlahPesan = Object.keys(child.val().messages || {}).length;
+      daftarEl.innerHTML = "";
+      if (daftar.length === 0) {
+        daftarEl.innerHTML = "<p class='kosong'>Terhubung, tapi database kosong.<br>Kirim chat dari website dulu.</p>";
+        return;
+      }
+
+      daftar.forEach(child => {
+        const val  = child.val() || {};
+        const info = val.info || {};
+        const jumlahPesan = Object.keys(val.messages || {}).length;
         const btn  = document.createElement('button');
         btn.className = 'chat-item' + (child.key === chatAktif ? ' aktif' : '');
         const b = document.createElement('b');
@@ -129,19 +149,28 @@
         b.textContent = "💬 Pengunjung" + jam + " (" + jumlahPesan + " pesan)";
         const key = document.createElement('span');
         key.className = 'key';
-        key.textContent = "ID: " + child.key;   // ⭐ cocokkan dengan Firebase Console!
+        key.textContent = "ID: " + child.key;
         const small = document.createElement('small');
         small.textContent = info.lastMessage || "(belum ada pesan)";
         btn.appendChild(b); btn.appendChild(key); btn.appendChild(small);
         btn.onclick = () => bukaChat(child.key);
         daftarEl.appendChild(btn);
-      } catch (e) { /* lewati data rusak */ }
+      });
+    }, (galat) => {
+      jumlahEl.textContent = "Pengunjung: ?";
+      daftarEl.innerHTML = "<p class='galat'><b>❌ GAGAL MEMUAT DATABASE</b><br><br>" + galat.message +
+        "<br><br>Cek: Rules sudah di-Publish?</p>";
     });
-  }, (galat) => {
-    statusEl.textContent = "❌ Gagal: " + firebaseConfig.databaseURL;
-    daftarEl.innerHTML = "<p class='galat'><b>❌ GAGAL MEMUAT</b><br><br>" + galat.message +
-      "<br><br>Cek: Rules sudah Publish? Config sudah diisi bukan GANTI_INI?</p>";
+  }
+
+  // ====== 3. ⭐ KUNCI UTAMA v5: tab dibuka lagi dari background
+  //            → pasang ulang listener → data TERBARU langsung diambil ======
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') pasangDaftar();
   });
+
+  // ====== 4. Tombol muat ulang manual ======
+  btnRefresh.onclick = () => location.reload();
 
   // ====== Buka percakapan ======
   function bukaChat(id) {
@@ -165,6 +194,8 @@
         pesanEl.appendChild(baris);
       });
       pesanEl.scrollTop = pesanEl.scrollHeight;
+    }, (galat) => {
+      pesanEl.innerHTML = "<p class='galat'>❌ Gagal memuat: " + galat.message + "</p>";
     });
   }
 
@@ -185,6 +216,8 @@
       inputEl.value = "";
     } catch (galat) { alert("❌ Gagal mengirim: " + galat.message); }
   });
+
+  pasangDaftar(); // mulai
 </script>
 </body>
 </html>
