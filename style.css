@@ -666,6 +666,19 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+/* ===== LOGO v2.1: PINK BENDERANG + PUTIH BERCAHAYA ===== */
+.app-header .logo {
+  color: #ff3ec8 !important;
+  text-shadow: 0 0 14px rgba(255, 62, 200, .75);
+  font-weight: 800;
+}
+
+.app-header .logo span {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, .95),
+               0 0 26px rgba(255, 255, 255, .55);
+}
+
 /* Beri ruang supaya konten tidak masuk ke balik header */
 body { padding-top: 64px !important; }
 
