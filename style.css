@@ -649,9 +649,13 @@ body {
   border-radius: 18px;
 }
 
-/* ===== HEADER: 4 WARNA MENGALIR ===== */
+/* ===== HEADER v2.1: NEMPEL PERMANEN DI BAR BROWSER ===== */
 .app-header {
-  position: sticky; top: 0; z-index: 999;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   background: linear-gradient(-45deg, #0052cc, #7c3aed, #0891b2, #1e3a8a, #0052cc);
   background-size: 400% 400%;
   animation: headerWarna 12s ease infinite;
@@ -661,6 +665,12 @@ body {
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+/* Beri ruang supaya konten tidak masuk ke balik header */
+body { padding-top: 64px !important; }
+
+/* Anchor (Beranda, Layanan, dll.) tidak tertutup header */
+section[id] { scroll-margin-top: 84px; }
 
 /* ===== TOMBOL HAMBURGER (3 garis → X) ===== */
 .btn-menu {
