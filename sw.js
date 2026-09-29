@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jasa_aplikasi_cache_v24';
+const CACHE_NAME = 'jasa_aplikasi_cache_v25';
 const ASSETS_TO_CACHE = [
   '/Jasa-Pembuatan-Aplikasi/',
   '/Jasa-Pembuatan-Aplikasi/index.html',
