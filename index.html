@@ -23,11 +23,40 @@
 </head>
 <body>
 
-    <!-- HEADER / APP BAR -->
+    <!-- Header Aplikasi UMKM -->
     <header class="app-header">
-        <div class="logo">Web<span>UMKM</span></div>
-        <div class="status-badge"><i class="fa-solid fa-circle-check"></i> PWA Ready</div>
-    </header>
+    <div class="logo">Aplikasi<span>UMKM</span></div>
+    <button class="btn-menu" id="btn-menu" aria-label="Buka menu">
+        <span></span><span></span><span></span>
+    </button>
+</header>
+
+<!-- LAYAR REDUP saat laci terbuka -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+
+<!-- LACI MENU (menyusul dari bawah header) -->
+<nav class="drawer" id="drawer">
+    <a href="#beranda" class="drawer-item"><i class="fa-solid fa-house"></i> Beranda</a>
+    <a href="#layanan" class="drawer-item"><i class="fa-solid fa-layer-group"></i> Layanan</a>
+    <a href="#portofolio" class="drawer-item"><i class="fa-solid fa-images"></i> Galeri</a>
+    <a href="#testimoni" class="drawer-item"><i class="fa-solid fa-star"></i> Testimoni</a>
+    <a href="#tentang" class="drawer-item"><i class="fa-solid fa-circle-info"></i> Tentang Kami</a>
+
+    <div class="drawer-hubungi">
+        <h4>Hubungi Kami</h4>
+        <div class="hubungi-buttons">
+            <a href="https://maps.google.com/?q=Batam" target="_blank" class="btn-hubungi maps">
+                <i class="fa-solid fa-location-dot"></i> Maps
+            </a>
+            <a href="https://wa.me/6283879387000" target="_blank" class="btn-hubungi wa">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </a>
+            <a href="mailto:email.anda@gmail.com" class="btn-hubungi mail">
+                <i class="fa-solid fa-envelope"></i> Email
+            </a>
+        </div>
+    </div>
+</nav>
 
     <!-- HERO SECTION -->
     <section class="hero-section" id="beranda">
@@ -135,6 +164,33 @@
     </div>
 </section>
 
+    <!-- TESTIMONI -->
+<section class="services-section" id="testimoni">
+    <h2 class="section-title">Testimoni Klien</h2>
+    <div class="price-grid">
+        <div class="price-card">
+            <p>⭐⭐⭐⭐⭐</p>
+            <p>"Website toko kami langsung terlihat profesional. Pembeli makin percaya!"</p>
+            <small>— Ibu Rina, Toko Kue Batam</small>
+        </div>
+        <div class="price-card">
+            <p>⭐⭐⭐⭐⭐</p>
+            <p>"Aplikasinya rapi, pengerjaannya cepat. Recommended untuk UMKM!"</p>
+            <small>— Pak Dedi, Jasa Service AC</small>
+        </div>
+    </div>
+</section>
+
+<!-- TENTANG KAMI -->
+<section class="services-section" id="tentang">
+    <h2 class="section-title">Tentang Kami</h2>
+    <div class="price-grid">
+        <div class="price-card">
+            <p>Kami adalah tim pembuat website & aplikasi mobile yang fokus membantu UMKM Indonesia <b>naik kelas</b> lewat teknologi — cepat, profesional, dan ramah kantong.</p>
+        </div>
+    </div>
+</section>
+
     <!-- BOTTOM NAVIGATION (Gaya Aplikasi Mobile) -->
     <nav class="bottom-nav">
         <a href="#beranda" class="nav-item active">
@@ -187,6 +243,31 @@
         <button id="btn-kirim-pesan"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
 </div>
+
+    <script>
+  const btnMenu   = document.getElementById('btn-menu');
+  const drawer    = document.getElementById('drawer');
+  const overlay   = document.getElementById('drawer-overlay');
+
+  function bukaLaci() {
+    drawer.classList.add('aktif');
+    overlay.classList.add('aktif');
+    btnMenu.classList.add('aktif');
+  }
+  function tutupLaci() {
+    drawer.classList.remove('aktif');
+    overlay.classList.remove('aktif');
+    btnMenu.classList.remove('aktif');
+  }
+
+  btnMenu.addEventListener('click', () =>
+    drawer.classList.contains('aktif') ? tutupLaci() : bukaLaci()
+  );
+  overlay.addEventListener('click', tutupLaci);
+  document.querySelectorAll('.drawer-item').forEach(item =>
+    item.addEventListener('click', tutupLaci)
+  );
+    </script>
 
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
