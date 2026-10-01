@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Chat v6 — Jasa Aplikasi UMKM</title>
+<title>Admin Chat v7 — Jasa Aplikasi UMKM</title>
 <style>
-  * { box-sizing: border-box; font-family: system-ui, sans-serif; margin: 0; }
-  body { background: #f0f2f5; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #f0f2f5; font-family: system-ui, sans-serif; overflow: visible; }
+
   header { background: #0052cc; color: #fff; padding: 12px 16px; }
   header h1 { font-size: 16px; }
   .versi { background: #ffd700; color: #333; font-size: 11px; padding: 1px 8px;
@@ -15,37 +16,38 @@
 
   #info-bar { background: #003d99; color: #fff; padding: 8px 12px; font-size: 13px;
               display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; }
-  #jumlah { font-size: 16px; font-weight: bold; }
-  #jam { font-weight: bold; font-variant-numeric: tabular-nums; }
+  #jumlah { font-size: 14px; font-weight: bold; }
+  #jam { font-weight: bold; }
   #btn-refresh { background: #fff; color: #0052cc; border: none; padding: 8px 14px;
                  border-radius: 16px; font-weight: bold; cursor: pointer; }
   #update-waktu { font-size: 10px; opacity: .85; width: 100%; }
 
-  .wrap { display: flex; max-width: 1000px; margin: 0 auto; }
-  #daftar-chat { width: 100%; background: #fff; min-height: calc(100vh - 120px); }
-  #panel { display: none; flex-direction: column; width: 100%; height: calc(100vh - 120px); background: #fff; }
-  body.mode-chat #daftar-chat { display: none; }
-  body.mode-chat #panel { display: flex; }
-  #btn-kembali { display: block; width: 100%; padding: 10px; border: none;
-                 background: #e8f0fe; color: #0052cc; font-weight: bold; cursor: pointer; }
-
-  @media (min-width: 768px) {
-    .wrap { padding: 20px; gap: 15px; }
-    #daftar-chat { width: 340px; min-height: auto; height: calc(100vh - 160px); border-radius: 12px; overflow: hidden; }
-    #panel { display: flex; flex: 1; border-radius: 12px; height: calc(100vh - 160px); }
-    body.mode-chat #daftar-chat { display: block; }
-    #btn-kembali { display: none; }
-  }
-
-  .chat-item { display: block; width: 100%; text-align: left; padding: 12px 16px;
-               border: none; border-bottom: 1px solid #eee; background: #fff; cursor: pointer; }
-  .chat-item.aktif { background: #e8f0fe; }
-  .chat-item b { display: block; font-size: 14px; color: #333; }
-  .chat-item .key { font-size: 10px; color: #999; word-break: break-all; display: block; }
-  .chat-item small { color: #555; display: block; margin-top: 2px; }
+  /* ===== TABEL PENGGUNJUNG ===== */
+  #tabel-wrap { max-width: 1000px; margin: 0 auto; padding: 12px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px;
+          overflow: hidden; box-shadow: 0 4px 16px rgba(20,45,110,.10); }
+  thead th { background: #003d99; color: #fff; font-size: 11px; padding: 10px;
+             text-align: left; text-transform: uppercase; letter-spacing: 1px; }
+  tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:active { background: #e8f0fe; }
+  td { padding: 12px 10px; font-size: 13px; vertical-align: top; }
+  .no { font-weight: 800; color: #0052cc; font-size: 17px; width: 34px; text-align: center; }
+  .nama { font-weight: 700; color: #333; }
+  .preview { color: #666; font-size: 12px; margin-top: 2px; max-width: 220px;
+             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .key2 { color: #aaa; font-size: 10px; word-break: break-all; }
+  .jam-cell { color: #999; font-size: 11px; white-space: nowrap; text-align: right; }
   .kosong { padding: 30px 20px; color: #999; text-align: center; }
   .galat  { padding: 20px; color: #b00020; text-align: center; word-break: break-word; font-size: 13px; }
 
+  /* ===== LAYAR PERCAKAPAN ===== */
+  #panel { display: none; position: fixed; inset: 0; background: #fff;
+           flex-direction: column; z-index: 100; }
+  body.mode-chat #panel { display: flex; }
+  body.mode-chat #tabel-wrap { display: none; }
+  #btn-kembali { width: 100%; padding: 12px; border: none; background: #e8f0fe;
+                 color: #0052cc; font-weight: bold; cursor: pointer; font-size: 14px; }
   #pesan-admin { flex: 1; overflow-y: auto; padding: 15px; background: #f7f8fa; }
   .baris { display: flex; margin-bottom: 8px; }
   .baris.user  { justify-content: flex-start; }
@@ -54,16 +56,15 @@
   .baris.user .buble  { background: #e4e6eb; border-bottom-left-radius: 4px; }
   .baris.admin .buble { background: #0052cc; color: #fff; border-bottom-right-radius: 4px; }
   .buble small { display: block; font-size: 10px; opacity: .7; margin-top: 3px; }
-
-  form { display: flex; border-top: 1px solid #ddd; }
+  #form-admin { display: flex; border-top: 1px solid #ddd; }
   #input-admin { flex: 1; padding: 14px; border: none; outline: none; font-size: 15px; }
-  #kirim-admin { background: #0052cc; color: #fff; border: none; padding: 0 22px; cursor: pointer; }
+  #kirim-admin { background: #0052cc; color: #fff; border: none; padding: 0 22px; cursor: pointer; font-weight: bold; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>💬 Admin Chat <span class="versi">v6</span></h1>
+  <h1>💬 Admin Chat <span class="versi">v7 — TABEL</span></h1>
   <div id="status">⏳ Menghubungkan...</div>
 </header>
 
@@ -74,16 +75,24 @@
   <span id="update-waktu">Data pada: -</span>
 </div>
 
-<div class="wrap">
-  <div id="daftar-chat"><p class="kosong">Memuat...</p></div>
-  <div id="panel">
-    <button id="btn-kembali">← Kembali ke daftar chat</button>
-    <div id="pesan-admin"></div>
-    <form id="form-admin">
-      <input id="input-admin" placeholder="Ketik balasan Anda..." autocomplete="off">
-      <button id="kirim-admin" type="submit">Kirim</button>
-    </form>
-  </div>
+<!-- LAYAR 1: TABEL -->
+<div id="tabel-wrap">
+  <table>
+    <thead><tr><th>No</th><th>Pengunjung</th><th>Terakhir</th></tr></thead>
+    <tbody id="isi-tabel"></tbody>
+  </table>
+  <p class="kosong" id="kosong-msg" style="display:none">Belum ada pengunjung yang chat.</p>
+  <p class="galat"  id="galat-msg"  style="display:none"></p>
+</div>
+
+<!-- LAYAR 2: PERCAKAPAN -->
+<div id="panel">
+  <button id="btn-kembali">← Kembali ke daftar (tabel)</button>
+  <div id="pesan-admin"></div>
+  <form id="form-admin">
+    <input id="input-admin" placeholder="Ketik balasan Anda..." autocomplete="off">
+    <button id="kirim-admin" type="submit">Kirim</button>
+  </form>
 </div>
 
 <script type="module">
@@ -103,78 +112,91 @@
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
 
-  const statusEl   = document.getElementById('status');
-  const jumlahEl   = document.getElementById('jumlah');
-  const jamEl      = document.getElementById('jam');
-  const waktuEl    = document.getElementById('update-waktu');
-  const btnRefresh = document.getElementById('btn-refresh');
-  const daftarEl   = document.getElementById('daftar-chat');
-  const pesanEl    = document.getElementById('pesan-admin');
-  const form       = document.getElementById('form-admin');
-  const inputEl    = document.getElementById('input-admin');
-  const btnKembali = document.getElementById('btn-kembali');
+  const statusEl  = document.getElementById('status');
+  const jumlahEl  = document.getElementById('jumlah');
+  const jamEl     = document.getElementById('jam');
+  const waktuEl   = document.getElementById('update-waktu');
+  const btnRefresh= document.getElementById('btn-refresh');
+  const tbody     = document.getElementById('isi-tabel');
+  const kosongMsg = document.getElementById('kosong-msg');
+  const galatMsg  = document.getElementById('galat-msg');
+  const pesanEl   = document.getElementById('pesan-admin');
+  const form      = document.getElementById('form-admin');
+  const inputEl   = document.getElementById('input-admin');
+  const btnKembali= document.getElementById('btn-kembali');
 
-  let chatAktif = null, berhentiDengar = null, berhentiDaftar = null;
+  let chatAktif = null, berhentiDengar = null;
 
-  // ====== 1. JAM HIDUP = DETEKTOR BOHONG ======
-  // Detik berjalan → halaman hidup, data bisa dipercaya.
-  // Detik BERHENTI → kamu melihat tampilan lama → tap 🔄 Muat Ulang.
-  function perbaruiJam() { jamEl.textContent = "🕐 " + new Date().toLocaleTimeString("id-ID"); }
-  perbaruiJam();
-  setInterval(perbaruiJam, 1000);
+  // Jam hidup = detektor halaman hidup/mati
+  setInterval(() => jamEl.textContent = "🕐 " + new Date().toLocaleTimeString("id-ID"), 1000);
 
-  // ====== 2. Indikator koneksi ======
-  onValue(ref(db, ".info/connected"), (s) => {
+  onValue(ref(db, ".info/connected"), s => {
     statusEl.textContent = (s.val() ? "🟢 Realtime aktif — " : "🔴 Koneksi putus — ") + firebaseConfig.databaseURL;
   });
 
-  // ====== 3. Daftar pengunjung ======
-  function pasangDaftar() {
-    if (berhentiDaftar) berhentiDaftar();
-    berhentiDaftar = onValue(ref(db, "chats"), (snapshot) => {
-      const daftar = [];
-      snapshot.forEach(child => daftar.push(child));
-      daftar.sort((a, b) =>
-        (((b.val() || {}).info || {}).lastTime || 0) - (((a.val() || {}).info || {}).lastTime || 0)
-      );
+  // ===== TABEL: SATU BARIS PER PENGUNJUNG, BERNOMOR =====
+  onValue(ref(db, "chats"), (snapshot) => {
+    const daftar = [];
+    snapshot.forEach(child => daftar.push(child));
+    daftar.sort((a, b) =>
+      (((b.val()||{}).info||{}).lastTime||0) - (((a.val()||{}).info||{}).lastTime||0)
+    );
 
-      jumlahEl.textContent = "Pengunjung: " + daftar.length;
-      waktuEl.textContent  = "Data pada: " + new Date().toLocaleTimeString("id-ID");
+    tbody.innerHTML = "";
+    kosongMsg.style.display = "none";
+    galatMsg.style.display  = "none";
 
-      daftarEl.innerHTML = "";
-      if (daftar.length === 0) {
-        daftarEl.innerHTML = "<p class='kosong'>Terhubung, tapi database kosong.<br>Kirim chat dari website dulu.</p>";
-        return;
-      }
-      daftar.forEach(child => {
-        try {
-          const val  = child.val() || {};
-          const info = val.info || {};
-          const jumlahPesan = Object.keys(val.messages || {}).length;
-          const btn  = document.createElement('button');
-          btn.className = 'chat-item' + (child.key === chatAktif ? ' aktif' : '');
-          const b = document.createElement('b');
-          const jam = info.lastTime
-            ? " • " + new Date(info.lastTime).toLocaleTimeString("id-ID", {hour:'2-digit', minute:'2-digit'})
-            : "";
-          b.textContent = "💬 Pengunjung" + jam + " (" + jumlahPesan + " pesan)";
-          const key = document.createElement('span');
-          key.className = 'key';
-          key.textContent = "ID: " + child.key;
-          const small = document.createElement('small');
-          small.textContent = info.lastMessage || "(belum ada pesan)";
-          btn.appendChild(b); btn.appendChild(key); btn.appendChild(small);
-          btn.onclick = () => bukaChat(child.key);
-          daftarEl.appendChild(btn);
-        } catch (e) { /* lewati data aneh */ }
-      });
-    }, (galat) => {
-      jumlahEl.textContent = "Pengunjung: ?";
-      daftarEl.innerHTML = "<p class='galat'><b>❌ GAGAL MEMUAT DATABASE</b><br><br>" + galat.message + "</p>";
+    if (daftar.length === 0) {
+      kosongMsg.style.display = "block";
+      jumlahEl.textContent = "Pengunjung: 0";
+      waktuEl.textContent = "Data pada: " + new Date().toLocaleTimeString("id-ID");
+      return;
+    }
+
+    daftar.forEach((child, index) => {
+      try {
+        const val  = child.val() || {};
+        const info = val.info || {};
+        const jumlahPesan = Object.keys(val.messages || {}).length;
+
+        const tr = document.createElement('tr');
+
+        const tdNo = document.createElement('td');           // ← NOMOR URUTMU
+        tdNo.className = 'no';
+        tdNo.textContent = String(index + 1);
+
+        const tdInfo = document.createElement('td');
+        const nama = document.createElement('div');
+        nama.className = 'nama';
+        nama.textContent = "Pengunjung #" + (index + 1) + " (" + jumlahPesan + " pesan)";
+        const preview = document.createElement('div');
+        preview.className = 'preview';
+        preview.textContent = info.lastMessage || "(belum ada pesan)";
+        const key2 = document.createElement('div');
+        key2.className = 'key2';
+        key2.textContent = child.key;
+        tdInfo.appendChild(nama); tdInfo.appendChild(preview); tdInfo.appendChild(key2);
+
+        const tdJam = document.createElement('td');
+        tdJam.className = 'jam-cell';
+        tdJam.textContent = info.lastTime
+          ? new Date(info.lastTime).toLocaleTimeString("id-ID", {hour:'2-digit', minute:'2-digit'}) : "-";
+
+        tr.appendChild(tdNo); tr.appendChild(tdInfo); tr.appendChild(tdJam);
+        tr.onclick = () => bukaChat(child.key);              // ← klik baris = buka chat
+        tbody.appendChild(tr);
+      } catch (e) { /* lewati data rusak */ }
     });
-  }
 
-  // ====== 4. Buka percakapan ======
+    // ⭐ DIAGNOSTIK: hitung baris yang BENAR-BENAR terpasang di layar
+    jumlahEl.textContent = "Pengunjung: " + daftar.length + " • Baris tampil: " + tbody.rows.length;
+    waktuEl.textContent  = "Data pada: " + new Date().toLocaleTimeString("id-ID");
+  }, (galat) => {
+    galatMsg.style.display = "block";
+    galatMsg.textContent = "❌ GAGAL MEMUAT: " + galat.message;
+  });
+
+  // ===== Buka percakapan =====
   function bukaChat(id) {
     chatAktif = id;
     document.body.classList.add('mode-chat');
@@ -196,8 +218,6 @@
         pesanEl.appendChild(baris);
       });
       pesanEl.scrollTop = pesanEl.scrollHeight;
-    }, (galat) => {
-      pesanEl.innerHTML = "<p class='galat'>❌ Gagal memuat: " + galat.message + "</p>";
     });
   }
 
@@ -207,12 +227,12 @@
     try { sessionStorage.removeItem('adminState'); } catch (e) {}
   };
 
-  // ====== 5. Kirim balasan ======
+  // ===== Kirim balasan =====
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const teks = inputEl.value.trim();
     if (teks === "") return;
-    if (!chatAktif) { alert("Pilih dulu pengunjung di daftar ya! 👆"); return; }
+    if (!chatAktif) { alert("Pilih dulu nomor pengunjung di tabel ya! 👆"); return; }
     try {
       await push(ref(db, "chats/" + chatAktif + "/messages"), { teks: teks, pengirim: "admin", waktu: Date.now() });
       await set(ref(db, "chats/" + chatAktif + "/info"), { lastMessage: "Admin: " + teks, lastTime: Date.now() });
@@ -220,36 +240,23 @@
     } catch (galat) { alert("❌ Gagal mengirim: " + galat.message); }
   });
 
-  // ====== 6. ⭐ OTAK v6: kembali ke tab ini = mulai dari awal ======
-  // Muat ulang total saat kembali → dijamin data TERKINI, bukan foto lama.
-  // Ketikan & percakapan yang terbuka disimpan dulu supaya tidak hilang.
+  // ===== Anti-beku: kembali ke tab = ambil data terbaru =====
   let waktuSembunyi = null;
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
       waktuSembunyi = Date.now();
-      try {
-        sessionStorage.setItem('adminState', JSON.stringify({ chatAktif: chatAktif, draft: inputEl.value }));
-      } catch (e) {}
-    } else {
-      if (waktuSembunyi && Date.now() - waktuSembunyi > 2000) {
-        location.reload();      // lama di background → muat ulang total
-      } else {
-        pasangDaftar();         // cuma sepintas → segarkan data saja
-      }
+      try { sessionStorage.setItem('adminState', JSON.stringify({ chatAktif, draft: inputEl.value })); } catch (e) {}
+    } else if (waktuSembunyi && Date.now() - waktuSembunyi > 2000) {
+      location.reload();
     }
   });
 
-  // ====== 7. Pulihkan sesi terakhir (setelah muat ulang otomatis) ======
   try {
-    const simpanan = JSON.parse(sessionStorage.getItem('adminState') || 'null');
-    if (simpanan) {
-      if (simpanan.draft) inputEl.value = simpanan.draft;
-      if (simpanan.chatAktif) bukaChat(simpanan.chatAktif);
-    }
+    const s = JSON.parse(sessionStorage.getItem('adminState') || 'null');
+    if (s) { if (s.draft) inputEl.value = s.draft; if (s.chatAktif) bukaChat(s.chatAktif); }
   } catch (e) {}
 
   btnRefresh.onclick = () => location.reload();
-  pasangDaftar();
 </script>
 </body>
 </html>
