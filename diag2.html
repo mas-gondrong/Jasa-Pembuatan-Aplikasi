@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIAG v2</title>
+<style>body{font-family:monospace;background:#111;color:#0f0;padding:15px;font-size:13px}
+button{padding:14px 22px;font-size:16px}pre{white-space:pre-wrap;word-break:break-all}</style>
+</head>
+<body>
+<h3>🔬 DIAG v2</h3>
+<div id="status">⏳ menghubungkan...</div>
+<button id="btn">🎯 TULIS MARKER KE DATABASE INI</button>
+<pre id="out">memuat...</pre>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyA3C3BpjOrEA16sop2uIIo52pVvFtAyEDQ",
+  authDomain: "jasa-pembuatan-aplikasi-batam.firebaseapp.com",
+  databaseURL: "https://jasa-pembuatan-aplikasi-batam-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jasa-pembuatan-aplikasi-batam",
+  storageBucket: "jasa-pembuatan-aplikasi-batam.firebasestorage.app",
+  messagingSenderId: "30894586214",
+  appId: "1:30894586214:web:def6ccb3da69ebc26e30a7"
+};
+const db = getDatabase(initializeApp(firebaseConfig));
+onValue(ref(db, ".info/connected"), s =>
+  document.getElementById('status').textContent = (s.val() ? "🟢" : "🔴") +
+  " Halaman ini membaca: " + firebaseConfig.databaseURL);
+document.getElementById('btn').onclick = async () => {
+  const k = "MARKER-" + Date.now();
+  await set(ref(db, "chats/" + k), { info: { lastMessage: "⬅️ MARKER dari halaman ini", lastTime: Date.now() } });
+  alert("✅ Marker " + k + " sudah ditulis!\nSekarang cari marker ini di Firebase Console.");
+};
+onValue(ref(db, "chats"), s => {
+  let n = 0, t = "";
+  s.forEach(c => { n++; const v = c.val() || {};
+    t += n + ") " + c.key + "\n    last: " + ((v.info || {}).lastMessage || "-") + "\n"; });
+  document.getElementById('out').textContent =
+    "JUMLAH ANAK 'chats' = " + n + "\n\n" + t;
+}, e => document.getElementById('out').textContent = "❌ " + e.message);
+</script>
+</body>
+</html>
