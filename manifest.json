@@ -2,14 +2,22 @@
   "name": "Jasa Pembuatan Aplikasi UMKM",
   "short_name": "Jasa Aplikasi",
   "description": "Solusi pembuatan aplikasi mobile dan platform digital untuk UMKM Naik Kelas.",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/Jasa-Pembuatan-Aplikasi/",
+  "scope": "/Jasa-Pembuatan-Aplikasi/",
   "display": "standalone",
   "background_color": "#0052cc",
   "theme_color": "#0052cc",
   "orientation": "portrait",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { 
+      "src": "/Jasa-Pembuatan-Aplikasi/icon-192.png", 
+      "sizes": "192x192", 
+      "type": "image/png" 
+    },
+    { 
+      "src": "/Jasa-Pembuatan-Aplikasi/icon-512.png", 
+      "sizes": "512x512", 
+      "type": "image/png" 
+    }
   ]
 }
