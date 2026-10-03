@@ -367,5 +367,21 @@
     if (document.visibilityState === 'visible') pasangChat();
   });
     </script>
+    <!-- ... kode HTML lainnya ... -->
+
+    <!-- Script Registrasi Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/Jasa-Pembuatan-Aplikasi/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
