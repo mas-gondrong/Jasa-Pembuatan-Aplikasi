@@ -762,3 +762,23 @@ section[id] { scroll-margin-top: 84px; }
 .btn-hubungi.wa   { background: #25d366; }
 .btn-hubungi.mail { background: #0052cc; }
 
+.btn-install {
+  display: none;           /* disembunyikan dulu, muncul otomatis jika bisa diinstall */
+  width: 100%;
+  max-width: 400px;
+  padding: 14px 20px;
+  margin: 20px auto;
+  background: #8b5e3c;
+  color: #ffffff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(139, 94, 60, 0.35);
+  cursor: pointer;
+}
+.btn-install:active {
+  transform: scale(0.97);
+}
+
