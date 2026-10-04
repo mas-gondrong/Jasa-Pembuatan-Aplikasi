@@ -63,6 +63,9 @@
         <h1>Bikin Usaha UMKM & BISNIS Anda <span>Naik Kelas</span></h1>
         <p>Jasa pembuatan website toko online dan aplikasi mobile Android/iOS profesional, cepat, dan ramah kantong pelaku UMKM.</p>
         <div class="hero-buttons">
+            <button id="btnInstall" class="btn-install">
+            📲 Install Aplikasi
+            </button>
             <a href="#layanan" class="btn-primary">Lihat Paket</a>
             <a href="https://wa.me/6283879387000?text=Halo%20Kak%2C%20saya%20ingin%20konsultasi%20gratis%20tentang%20pembuatan%20website%20atau%20aplikasi" target="_blank" class="btn-secondary"><i class="fa-brands fa-whatsapp"></i> Konsultasi Gratis</a>
         </div>
@@ -382,6 +385,34 @@
                     });
             });
         }
+
+// ==========================================
+// 3. TOMBOL INSTALL CUSTOM
+// ==========================================
+let deferredPrompt;
+const btnInstall = document.getElementById('btnInstall');
+
+// Chrome mengizinkan install → simpan event & tampilkan tombol
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();          // cegah dialog bawaan muncul otomatis
+  deferredPrompt = e;
+  btnInstall.style.display = 'block';
+});
+
+// Saat tombol diklik → tampilkan dialog instal
+btnInstall.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  console.log(outcome === 'accepted' ? '✅ User menginstall' : '❌ User menolak');
+  deferredPrompt = null;
+  btnInstall.style.display = 'none';
+});
+
+// Jika sudah terinstall → sembunyikan tombol selamanya
+window.addEventListener('appinstalled', () => {
+  btnInstall.style.display = 'none';
+});
     </script>
 </body>
 </html>
