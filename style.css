@@ -821,3 +821,12 @@ section[id] { scroll-margin-top: 84px; }
 @media (min-width: 700px) {
   .layanan-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ===== KARTU LAYANAN: KETUK → WHATSAPP ===== */
+.layanan-card { cursor: pointer; -webkit-tap-highlight-color: rgba(0, 82, 204, .15); }
+.layanan-hint {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 8px; font-size: 9px; font-weight: 700;
+  color: #1da851; background: rgba(37, 211, 102, .15);
+  padding: 4px 9px; border-radius: 10px;
+}
