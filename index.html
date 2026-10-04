@@ -66,7 +66,6 @@
             <button id="btnInstall" class="btn-install">
             📲 Install Aplikasi
             </button>
-            <a href="#layanan" class="btn-primary">Lihat Paket</a>
             <a href="https://wa.me/6283879387000?text=Halo%20Kak%2C%20saya%20ingin%20konsultasi%20gratis%20tentang%20pembuatan%20website%20atau%20aplikasi" target="_blank" class="btn-secondary"><i class="fa-brands fa-whatsapp"></i> Konsultasi Gratis</a>
         </div>
     </section>
@@ -245,6 +244,31 @@
         <button id="btn-kirim-pesan"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
 </div>
+
+    <script>
+  // ===== KARTU LAYANAN → WHATSAPP OTOMATIS =====
+  document.querySelectorAll('.layanan-card').forEach(kartu => {
+    const nama = kartu.querySelector('h3').textContent.trim();
+    const url = "https://wa.me/6283879387000?text=" +
+                encodeURIComponent("Halo Kak, saya tertarik layanan " + nama + ". Boleh minta info & penawarannya?");
+    kartu.addEventListener('click', () => window.open(url, '_blank'));
+
+    // Pil hijau kecil = sinyal "ini bisa diketuk!"
+    const hint = document.createElement('span');
+    hint.className = 'layanan-hint';
+    hint.innerHTML = '<i class="fa-brands fa-whatsapp"></i> Ketuk untuk tanya';
+    kartu.appendChild(hint);
+  });
+
+  // Kartu penutup 🚀 juga ikut bisa diketuk
+  const closing = document.querySelector('.layanan-closing');
+  if (closing) {
+    closing.addEventListener('click', () => window.open(
+      "https://wa.me/6283879387000?text=" +
+      encodeURIComponent("Halo Kak, saya ingin konsultasi solusi digital untuk usaha saya."), '_blank'));
+    closing.style.cursor = 'pointer';
+  }
+    </script>
 
     <script>
   const btnMenu   = document.getElementById('btn-menu');
