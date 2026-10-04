@@ -782,3 +782,42 @@ section[id] { scroll-margin-top: 84px; }
   transform: scale(0.97);
 }
 
+/* ===== MENU LAYANAN KAMI ===== */
+.layanan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);   /* 2 kotak per baris di HP */
+  gap: 12px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 5px 16px 15px;
+}
+.layanan-card {
+  background: #fff;
+  border: 1px solid rgba(20, 45, 110, .06);
+  border-radius: 16px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: 0 8px 22px rgba(20, 45, 110, .08);
+  transition: transform .2s;
+}
+.layanan-card:active { transform: scale(.95); }
+.layanan-ikon { font-size: 30px; display: block; line-height: 1; }
+.layanan-card h3 { font-size: 13px; font-weight: 700; color: #1e293b; margin: 8px 0 4px; }
+.layanan-card p  { font-size: 11px; color: #64748b; line-height: 1.45; margin: 0; }
+
+.layanan-closing {
+  grid-column: 1 / -1;                    /* melebar penuh 2 kolom */
+  background: linear-gradient(135deg, #0052cc, #7c3aed);
+  color: #fff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  text-align: center;
+  box-shadow: 0 12px 28px rgba(0, 82, 204, .25);
+}
+.layanan-closing h3 { font-size: 15px; margin: 0 0 6px; }
+.layanan-closing p  { font-size: 12px; line-height: 1.55; margin: 0; opacity: .95; }
+
+/* Layar lebar (tablet/laptop): otomatis 3 kolom biar tidak renggang */
+@media (min-width: 700px) {
+  .layanan-grid { grid-template-columns: repeat(3, 1fr); }
+}
