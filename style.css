@@ -345,15 +345,6 @@ body {
     box-shadow: 0 15px 30px rgba(0, 52, 204, 0.1);
 }
 
-.portfolio-img-container {
-    position: relative;
-    height: 160px;
-    background: linear-gradient(135deg, #e6f0ff 0%, #cce0ff 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .portfolio-graphic {
     font-size: 20px;
     font-weight: 700;
@@ -436,10 +427,17 @@ body {
     background-position: center;
 }
 
-/* Berlaku untuk SEMUA kartu portofolio — tulis sekali, selesai selamanya */
+/* SATU BLOK GABUNGAN — hapus keduanya, pakai yang ini */
 .portfolio-img-container {
-  background-size: cover;
-  background-position: center;
+    position: relative;
+    height: 160px;
+    background: linear-gradient(135deg, #e6f0ff 0%, #cce0ff 100%);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    justify-content: center;
 }
 
 /* Mengubah teks judul di atas foto agar berwarna putih dan mudah dibaca */
