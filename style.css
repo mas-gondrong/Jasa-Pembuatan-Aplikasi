@@ -436,10 +436,10 @@ body {
     background-position: center;
 }
 
-#portofolio-fashion {
-    background-image: url('bg-fashion.jpg'); /* Pastikan nama file ini sesuai yang Anda upload di GitHub */
-    background-size: cover;
-    background-position: center;
+/* Berlaku untuk SEMUA kartu portofolio — tulis sekali, selesai selamanya */
+.portfolio-img-container {
+  background-size: cover;
+  background-position: center;
 }
 
 /* Mengubah teks judul di atas foto agar berwarna putih dan mudah dibaca */
