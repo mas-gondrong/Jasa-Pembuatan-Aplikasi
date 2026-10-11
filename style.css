@@ -109,6 +109,24 @@ body {
     border: 1px solid #25d366;
 }
 
+/* Gambar WhatsApp sebagai tombol */
+.btn-wa-gambar {
+    display: block;
+    margin: 0 auto 12px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.15s;
+    max-width: 500px;
+}
+.btn-wa-gambar img {
+    width: 100%;
+    display: block;
+}
+.btn-wa-gambar:active {
+    transform: scale(0.97);   /* efek "ditekan" saat diklik */
+}
+
 /* FITUR CARDS */
 .features-section {
     padding: 20px;
