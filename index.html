@@ -69,6 +69,12 @@
             <a href="https://wa.me/6283879387000?text=Halo%20Kak%2C%20saya%20ingin%20konsultasi%20gratis%20tentang%20pembuatan%20website%20atau%20aplikasi" target="_blank" class="btn-secondary"><i class="fa-brands fa-whatsapp"></i> Konsultasi Gratis</a>
         </div>
     </section>
+    
+   <!-- FITUR IKLAN VIDEO DARI YOUTUB -->
+    <div id="player-container">
+  <div id="player"></div>
+  <button id="sound-toggle">Aktifkan Suara</button>
+    </div>
 
     <!-- FITUR UNGGULAN (KELEBIHAN PWA) -->
     <section class="features-section">
@@ -476,6 +482,42 @@ btnInstall.addEventListener('click', async () => {
 window.addEventListener('appinstalled', () => {
   btnInstall.style.display = 'none';
 });
+    </script>
+    <script>
+    // ====== FITUR IKLAN VIDEO DARI YOUTUB ======
+  let player;
+  const VIDEO_ID = 'fjefGq2FSQA';
+
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+      videoId: VIDEO_ID,
+      playerVars: {
+        autoplay: 1,
+        mute: 1,
+        loop: 1,
+        playlist: VIDEO_ID,
+        controls: 1,
+        modestbranding: 1,
+        rel: 0,
+        playsinline: 1
+      }
+    });
+  }
+
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+
+  const btn = document.getElementById('sound-toggle');
+  btn.addEventListener('click', () => {
+    if (player.isMuted()) {
+      player.unMute();
+      btn.textContent = 'Matikan Suara';
+    } else {
+      player.mute();
+      btn.textContent = 'Aktifkan Suara';
+    }
+  });
     </script>
 </body>
 </html>
