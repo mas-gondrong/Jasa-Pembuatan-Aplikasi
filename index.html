@@ -345,44 +345,31 @@
             <i class="fa-solid fa-briefcase"></i>
             <span>Portofolio</span>
         </a>
-        <!-- Cari tombol Chat di Bottom Nav, lalu ubah jadi seperti ini -->
-<a href="javascript:void(0)" class="nav-item" id="btn-buka-chat">
-    <i class="fa-solid fa-comments text-success"></i>
-    <span>Chat Admin</span>
-</a>
-    </nav>
+            </nav>
 
-    <!-- HALAMAN LIVE CHAT FULL-SCREEN -->
-<div class="chat-fullscreen-overlay" id="jendela-chat">
-    <!-- Header Chat -->
-    <div class="chat-header">
-        <div class="admin-profile">
-            <div class="avatar-online">💬</div>
-            <div>
-                <h4>Admin Jasa Aplikasi</h4>
-                <p><span class="dot-online"></span> Online (Balas Cepat)</p>
+    <!-- ===== WIDGET CHAT: BUBBLE MELAYANG (tidak menutupi layar penuh) ===== -->
+    <button class="chat-fab" id="chat-fab" aria-label="Buka chat admin">
+        <i class="fa-solid fa-comments"></i>
+        <span class="chat-badge" id="chat-badge" hidden>0</span>
+    </button>
+
+    <section class="chat-window" id="chat-window" aria-hidden="true">
+        <header class="chat-window-header">
+            <div class="chat-admin-info">
+                <span class="chat-admin-avatar">💬</span>
+                <div>
+                    <h4>Admin Jasa Aplikasi</h4>
+                    <p><span class="dot-online"></span> Online (Balas Cepat)</p>
+                </div>
             </div>
-        </div>
-        <button class="btn-tutup-chat" id="btn-tutup-chat" style="color: #ffffff !important; background: rgba(255,255,255,0.2);"><i class="fa-solid fa-arrow-left"></i></button>
-    </div>
-
-
-    <!-- Area Pesan (Isi Obrolan) -->
-    <div class="chat-body" id="chat-box-messages">
-        <div class="msg-bubble admin-msg">
-            <p>Halo Kak! Selamat datang di Jasa Pembuatan Aplikasi UMKM. Ada yang bisa kami bantu untuk bisnis Anda hari ini?</p>
-            <span class="msg-time">Barusan</span>
-        </div>
-        <!-- Pesan dari user akan muncul di sini secara otomatis -->
-    </div>
-
-
-    <!-- Kotak Input Pesan di Bagian Bawah -->
-    <div class="chat-footer">
-        <input type="text" id="input-pesan-user" placeholder="Ketik pesan konsultasi Anda..." autocomplete="off">
-        <button id="btn-kirim-pesan"><i class="fa-solid fa-paper-plane"></i></button>
-    </div>
-</div>
+            <button class="chat-close" id="chat-close" aria-label="Tutup chat">&times;</button>
+        </header>
+        <div class="chat-window-body" id="chat-box-messages"><!-- pesan muncul di sini --></div>
+        <footer class="chat-window-footer">
+            <input type="text" id="input-pesan-user" placeholder="Ketik pesan konsultasi Anda..." autocomplete="off">
+            <button id="btn-kirim-pesan" aria-label="Kirim pesan"><i class="fa-solid fa-paper-plane"></i></button>
+        </footer>
+    </section>
 
     <script>
   // ===== KARTU LAYANAN → WHATSAPP OTOMATIS =====
@@ -434,104 +421,7 @@
   );
     </script>
 
-    <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-  // ====== PASTE CONFIG DARI FIREBASE CONSOLE ======
-  const firebaseConfig = {
-  apiKey: "AIzaSyA3C3BpjOrEA16sop2uIIo52pVvFtAyEDQ",
-  authDomain: "jasa-pembuatan-aplikasi-batam.firebaseapp.com",
-  databaseURL: "https://jasa-pembuatan-aplikasi-batam-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "jasa-pembuatan-aplikasi-batam",
-  storageBucket: "jasa-pembuatan-aplikasi-batam.firebasestorage.app",
-  messagingSenderId: "30894586214",
-  appId: "1:30894586214:web:def6ccb3da69ebc26e30a7"
-};
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // ====== ID chat unik per pengunjung ======
-  let chatId = localStorage.getItem("chatId");
-  if (!chatId) {
-    chatId = "chat_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
-    localStorage.setItem("chatId", chatId);
-  }
-
-  // ====== Elemen UI ======
-  const btnBukaChat   = document.getElementById('btn-buka-chat');
-  const btnTutupChat  = document.getElementById('btn-tutup-chat');
-  const jendelaChat   = document.getElementById('jendela-chat');
-  const btnKirimPesan = document.getElementById('btn-kirim-pesan');
-  const inputPesan    = document.getElementById('input-pesan-user');
-  const chatBody      = document.getElementById('chat-box-messages');
-
-  btnBukaChat.addEventListener('click', () => jendelaChat.classList.add('aktif'));
-  btnTutupChat.addEventListener('click', () => jendelaChat.classList.remove('aktif'));
-
-  function formatWaktu(ms) {
-    if (!ms || (Date.now() - ms) / 1000 < 60) return "Barusan";
-    return new Date(ms).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-  }
-
-  function buatBubble(teks, pengirim, waktu) {
-    const bubble = document.createElement('div');
-    bubble.classList.add('msg-bubble', pengirim === 'user' ? 'user-msg' : 'admin-msg');
-    const p = document.createElement('p');
-    p.textContent = teks;
-    const span = document.createElement('span');
-    span.className = 'msg-time';
-    span.textContent = waktu;
-    bubble.appendChild(p);
-    bubble.appendChild(span);
-    return bubble;
-  }
-
-  const PESAN_SAMBUTAN = "Halo Kak! Selamat datang di Jasa Pembuatan Aplikasi UMKM. Ada yang bisa kami bantu untuk bisnis Anda hari ini?";
-
-  // ====== KIRIM PESAN → SIMPAN KE REALTIME DATABASE ======
-  async function kirimPesan() {
-    const teks = inputPesan.value.trim();
-    if (teks === "") return;
-    inputPesan.value = "";
-    try {
-      await push(ref(db, "chats/" + chatId + "/messages"), {
-        teks: teks, pengirim: "user", waktu: Date.now()
-      });
-      await set(ref(db, "chats/" + chatId + "/info"), {
-        lastMessage: teks, lastTime: Date.now()
-      });
-    } catch (err) {
-      alert("Gagal mengirim. Periksa koneksi internet Anda.");
-      inputPesan.value = teks;
-    }
-  }
-
-  btnKirimPesan.addEventListener('click', kirimPesan);
-  inputPesan.addEventListener('keypress', (e) => { if (e.key === 'Enter') kirimPesan(); });
-
-    // ====== TAMPILKAN PESAN REAL-TIME (termasuk balasan admin!) ======
-  let hentikanChat = null;
-  function pasangChat() {
-    if (hentikanChat) hentikanChat();
-    hentikanChat = onValue(ref(db, "chats/" + chatId + "/messages"), (snapshot) => {
-      chatBody.innerHTML = "";
-      chatBody.appendChild(buatBubble(PESAN_SAMBUTAN, "admin", "Barusan"));
-      snapshot.forEach((child) => {
-        const d = child.val();
-        chatBody.appendChild(buatBubble(d.teks, d.pengirim, formatWaktu(d.waktu)));
-      });
-      chatBody.scrollTop = chatBody.scrollHeight;
-    });
-  }
-  pasangChat();
-
-  // Pengunjung kembali ke tab → langsung ambil data terbaru
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') pasangChat();
-  });
-    </script>
+    <script type="module" src="chat.js"></script>
     <!-- ... kode HTML lainnya ... -->
 
     <!-- Script Registrasi Service Worker -->
@@ -615,4 +505,4 @@ window.addEventListener('appinstalled', () => {
   });
     </script>
 </body>
-</html>
+</html> 
