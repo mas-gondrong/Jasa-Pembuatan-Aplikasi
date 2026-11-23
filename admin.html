@@ -3,260 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Chat v7 — Jasa Aplikasi UMKM</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: #f0f2f5; font-family: system-ui, sans-serif; overflow: visible; }
-
-  header { background: #0052cc; color: #fff; padding: 12px 16px; }
-  header h1 { font-size: 16px; }
-  .versi { background: #ffd700; color: #333; font-size: 11px; padding: 1px 8px;
-           border-radius: 10px; font-weight: bold; margin-left: 6px; vertical-align: middle; }
-  #status { font-size: 11px; margin-top: 4px; word-break: break-all; }
-
-  #info-bar { background: #003d99; color: #fff; padding: 8px 12px; font-size: 13px;
-              display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; }
-  #jumlah { font-size: 14px; font-weight: bold; }
-  #jam { font-weight: bold; }
-  #btn-refresh { background: #fff; color: #0052cc; border: none; padding: 8px 14px;
-                 border-radius: 16px; font-weight: bold; cursor: pointer; }
-  #update-waktu { font-size: 10px; opacity: .85; width: 100%; }
-
-  /* ===== TABEL PENGGUNJUNG ===== */
-  #tabel-wrap { max-width: 1000px; margin: 0 auto; padding: 12px; }
-  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px;
-          overflow: hidden; box-shadow: 0 4px 16px rgba(20,45,110,.10); }
-  thead th { background: #003d99; color: #fff; font-size: 11px; padding: 10px;
-             text-align: left; text-transform: uppercase; letter-spacing: 1px; }
-  tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:active { background: #e8f0fe; }
-  td { padding: 12px 10px; font-size: 13px; vertical-align: top; }
-  .no { font-weight: 800; color: #0052cc; font-size: 17px; width: 34px; text-align: center; }
-  .nama { font-weight: 700; color: #333; }
-  .preview { color: #666; font-size: 12px; margin-top: 2px; max-width: 220px;
-             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .key2 { color: #aaa; font-size: 10px; word-break: break-all; }
-  .jam-cell { color: #999; font-size: 11px; white-space: nowrap; text-align: right; }
-  .kosong { padding: 30px 20px; color: #999; text-align: center; }
-  .galat  { padding: 20px; color: #b00020; text-align: center; word-break: break-word; font-size: 13px; }
-
-  /* ===== LAYAR PERCAKAPAN ===== */
-  #panel { display: none; position: fixed; inset: 0; background: #fff;
-           flex-direction: column; z-index: 100; }
-  body.mode-chat #panel { display: flex; }
-  body.mode-chat #tabel-wrap { display: none; }
-  #btn-kembali { width: 100%; padding: 12px; border: none; background: #e8f0fe;
-                 color: #0052cc; font-weight: bold; cursor: pointer; font-size: 14px; }
-  #pesan-admin { flex: 1; overflow-y: auto; padding: 15px; background: #f7f8fa; }
-  .baris { display: flex; margin-bottom: 8px; }
-  .baris.user  { justify-content: flex-start; }
-  .baris.admin { justify-content: flex-end; }
-  .buble { max-width: 75%; padding: 9px 13px; border-radius: 14px; font-size: 14px; word-break: break-word; }
-  .baris.user .buble  { background: #e4e6eb; border-bottom-left-radius: 4px; }
-  .baris.admin .buble { background: #0052cc; color: #fff; border-bottom-right-radius: 4px; }
-  .buble small { display: block; font-size: 10px; opacity: .7; margin-top: 3px; }
-  #form-admin { display: flex; border-top: 1px solid #ddd; }
-  #input-admin { flex: 1; padding: 14px; border: none; outline: none; font-size: 15px; }
-  #kirim-admin { background: #0052cc; color: #fff; border: none; padding: 0 22px; cursor: pointer; font-weight: bold; }
-</style>
+<title>Admin Chat — Jasa Pembuatan Aplikasi UMKM</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<header>
-  <h1>💬 Admin Chat <span class="versi">v7 — TABEL</span></h1>
-  <div id="status">⏳ Menghubungkan...</div>
-</header>
-
-<div id="info-bar">
-  <span id="jumlah">Pengunjung: ...</span>
-  <span id="jam">🕐 --:--:--</span>
-  <button id="btn-refresh">🔄 Muat Ulang</button>
-  <span id="update-waktu">Data pada: -</span>
-</div>
-
-<!-- LAYAR 1: TABEL -->
-<div id="tabel-wrap">
-  <table>
-    <thead><tr><th>No</th><th>Pengunjung</th><th>Terakhir</th></tr></thead>
-    <tbody id="isi-tabel"></tbody>
-  </table>
-  <p class="kosong" id="kosong-msg" style="display:none">Belum ada pengunjung yang chat.</p>
-  <p class="galat"  id="galat-msg"  style="display:none"></p>
-</div>
-
-<!-- LAYAR 2: PERCAKAPAN -->
-<div id="panel">
-  <button id="btn-kembali">← Kembali ke daftar (tabel)</button>
-  <div id="pesan-admin"></div>
-  <form id="form-admin">
-    <input id="input-admin" placeholder="Ketik balasan Anda..." autocomplete="off">
-    <button id="kirim-admin" type="submit">Kirim</button>
+<!-- ====== LAYAR LOGIN PIN ====== -->
+<div class="login-overlay" id="login-overlay">
+  <form class="login-card" id="login-form" autocomplete="off">
+    <div class="login-icon"><i class="fa-solid fa-lock"></i></div>
+    <h2>Panel Admin Chat</h2>
+    <p class="login-sub">Masukkan PIN 6 digit untuk membalas chat pengunjung.</p>
+    <input type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+           id="pin-input" class="pin-input" placeholder="6 digit" autocomplete="off" autofocus>
+    <p class="login-err" id="login-err" hidden>PIN salah. Coba lagi.</p>
+    <button type="submit" class="login-btn">Masuk</button>
   </form>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+<!-- ====== DASHBOARD ====== -->
+<div class="admin-app" id="admin-app" hidden>
+  <header class="admin-topbar">
+    <div class="admin-brand"><i class="fa-solid fa-headset"></i> Admin Chat — Jasa Aplikasi</div>
+    <button class="admin-logout" id="btn-logout" title="Keluar"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+  </header>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA3C3BpjOrEA16sop2uIIo52pVvFtAyEDQ",
-    authDomain: "jasa-pembuatan-aplikasi-batam.firebaseapp.com",
-    databaseURL: "https://jasa-pembuatan-aplikasi-batam-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "jasa-pembuatan-aplikasi-batam",
-    storageBucket: "jasa-pembuatan-aplikasi-batam.firebasestorage.app",
-    messagingSenderId: "30894586214",
-    appId: "1:30894586214:web:def6ccb3da69ebc26e30a7"
-  };
+  <main class="admin-layout">
+    <!-- DAFTAR SESI -->
+    <aside class="panel-sesi">
+      <div class="panel-head">
+        <h3><i class="fa-solid fa-inbox"></i> Percakapan</h3>
+        <span class="total-sesi" id="total-sesi">0</span>
+      </div>
+      <div class="search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="search-sesi" placeholder="Cari percakapan...">
+      </div>
+      <div class="daftar-sesi" id="daftar-sesi">
+        <p class="empty-state">Belum ada percakapan masuk.</p>
+      </div>
+    </aside>
 
-  const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
+    <!-- DETAIL PERCAKAPAN -->
+    <section class="panel-chat">
+      <!-- STATE KOSONG -->
+      <div class="chat-placeholder" id="chat-placeholder">
+        <i class="fa-solid fa-comments"></i>
+        <p>Pilih percakapan di sebelah kiri untuk membalas satu per satu.</p>
+      </div>
 
-  const statusEl  = document.getElementById('status');
-  const jumlahEl  = document.getElementById('jumlah');
-  const jamEl     = document.getElementById('jam');
-  const waktuEl   = document.getElementById('update-waktu');
-  const btnRefresh= document.getElementById('btn-refresh');
-  const tbody     = document.getElementById('isi-tabel');
-  const kosongMsg = document.getElementById('kosong-msg');
-  const galatMsg  = document.getElementById('galat-msg');
-  const pesanEl   = document.getElementById('pesan-admin');
-  const form      = document.getElementById('form-admin');
-  const inputEl   = document.getElementById('input-admin');
-  const btnKembali= document.getElementById('btn-kembali');
+      <!-- STATE AKTIF -->
+      <div class="chat-aktif" id="chat-aktif" hidden>
+        <header class="chat-head">
+          <button class="chat-back" id="chat-back" aria-label="Kembali ke daftar"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="chat-head-info">
+            <h4 id="chat-nama">Pengunjung</h4>
+            <small id="chat-id"></small>
+          </div>
+          <span class="chat-status" id="chat-status">Online</span>
+        </header>
+        <div class="chat-msgs" id="chat-msgs"></div>
+        <footer class="chat-reply">
+          <input type="text" id="input-balas" placeholder="Tulis balasan..." autocomplete="off">
+          <button id="btn-balas" aria-label="Kirim balasan"><i class="fa-solid fa-paper-plane"></i></button>
+        </footer>
+      </div>
+    </section>
+  </main>
+</div>
 
-  let chatAktif = null, berhentiDengar = null;
-
-  // Jam hidup = detektor halaman hidup/mati
-  setInterval(() => jamEl.textContent = "🕐 " + new Date().toLocaleTimeString("id-ID"), 1000);
-
-  onValue(ref(db, ".info/connected"), s => {
-    statusEl.textContent = (s.val() ? "🟢 Realtime aktif — " : "🔴 Koneksi putus — ") + firebaseConfig.databaseURL;
-  });
-
-  // ===== TABEL: SATU BARIS PER PENGUNJUNG, BERNOMOR =====
-  onValue(ref(db, "chats"), (snapshot) => {
-    const daftar = [];
-    snapshot.forEach(child => daftar.push(child));
-    daftar.sort((a, b) =>
-      (((b.val()||{}).info||{}).lastTime||0) - (((a.val()||{}).info||{}).lastTime||0)
-    );
-
-    tbody.innerHTML = "";
-    kosongMsg.style.display = "none";
-    galatMsg.style.display  = "none";
-
-    if (daftar.length === 0) {
-      kosongMsg.style.display = "block";
-      jumlahEl.textContent = "Pengunjung: 0";
-      waktuEl.textContent = "Data pada: " + new Date().toLocaleTimeString("id-ID");
-      return;
-    }
-
-    daftar.forEach((child, index) => {
-      try {
-        const val  = child.val() || {};
-        const info = val.info || {};
-        const jumlahPesan = Object.keys(val.messages || {}).length;
-
-        const tr = document.createElement('tr');
-
-        const tdNo = document.createElement('td');           // ← NOMOR URUTMU
-        tdNo.className = 'no';
-        tdNo.textContent = String(index + 1);
-
-        const tdInfo = document.createElement('td');
-        const nama = document.createElement('div');
-        nama.className = 'nama';
-        nama.textContent = "Pengunjung #" + (index + 1) + " (" + jumlahPesan + " pesan)";
-        const preview = document.createElement('div');
-        preview.className = 'preview';
-        preview.textContent = info.lastMessage || "(belum ada pesan)";
-        const key2 = document.createElement('div');
-        key2.className = 'key2';
-        key2.textContent = child.key;
-        tdInfo.appendChild(nama); tdInfo.appendChild(preview); tdInfo.appendChild(key2);
-
-        const tdJam = document.createElement('td');
-        tdJam.className = 'jam-cell';
-        tdJam.textContent = info.lastTime
-          ? new Date(info.lastTime).toLocaleTimeString("id-ID", {hour:'2-digit', minute:'2-digit'}) : "-";
-
-        tr.appendChild(tdNo); tr.appendChild(tdInfo); tr.appendChild(tdJam);
-        tr.onclick = () => bukaChat(child.key);              // ← klik baris = buka chat
-        tbody.appendChild(tr);
-      } catch (e) { /* lewati data rusak */ }
-    });
-
-    // ⭐ DIAGNOSTIK: hitung baris yang BENAR-BENAR terpasang di layar
-    jumlahEl.textContent = "Pengunjung: " + daftar.length + " • Baris tampil: " + tbody.rows.length;
-    waktuEl.textContent  = "Data pada: " + new Date().toLocaleTimeString("id-ID");
-  }, (galat) => {
-    galatMsg.style.display = "block";
-    galatMsg.textContent = "❌ GAGAL MEMUAT: " + galat.message;
-  });
-
-  // ===== Buka percakapan =====
-  function bukaChat(id) {
-    chatAktif = id;
-    document.body.classList.add('mode-chat');
-    if (berhentiDengar) berhentiDengar();
-    berhentiDengar = onValue(ref(db, "chats/" + id + "/messages"), (snap) => {
-      pesanEl.innerHTML = "";
-      snap.forEach(child => {
-        const d = child.val() || {};
-        const baris = document.createElement('div');
-        baris.className = 'baris ' + (d.pengirim === 'admin' ? 'admin' : 'user');
-        const buble = document.createElement('div');
-        buble.className = 'buble';
-        const teks = document.createElement('span');
-        teks.textContent = d.teks || "";
-        const waktu = document.createElement('small');
-        waktu.textContent = d.waktu ? new Date(d.waktu).toLocaleTimeString("id-ID", {hour:'2-digit', minute:'2-digit'}) : "";
-        buble.appendChild(teks); buble.appendChild(waktu);
-        baris.appendChild(buble);
-        pesanEl.appendChild(baris);
-      });
-      pesanEl.scrollTop = pesanEl.scrollHeight;
-    });
-  }
-
-  btnKembali.onclick = () => {
-    document.body.classList.remove('mode-chat');
-    chatAktif = null;
-    try { sessionStorage.removeItem('adminState'); } catch (e) {}
-  };
-
-  // ===== Kirim balasan =====
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const teks = inputEl.value.trim();
-    if (teks === "") return;
-    if (!chatAktif) { alert("Pilih dulu nomor pengunjung di tabel ya! 👆"); return; }
-    try {
-      await push(ref(db, "chats/" + chatAktif + "/messages"), { teks: teks, pengirim: "admin", waktu: Date.now() });
-      await set(ref(db, "chats/" + chatAktif + "/info"), { lastMessage: "Admin: " + teks, lastTime: Date.now() });
-      inputEl.value = "";
-    } catch (galat) { alert("❌ Gagal mengirim: " + galat.message); }
-  });
-
-  // ===== Anti-beku: kembali ke tab = ambil data terbaru =====
-  let waktuSembunyi = null;
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      waktuSembunyi = Date.now();
-      try { sessionStorage.setItem('adminState', JSON.stringify({ chatAktif, draft: inputEl.value })); } catch (e) {}
-    } else if (waktuSembunyi && Date.now() - waktuSembunyi > 2000) {
-      location.reload();
-    }
-  });
-
-  try {
-    const s = JSON.parse(sessionStorage.getItem('adminState') || 'null');
-    if (s) { if (s.draft) inputEl.value = s.draft; if (s.chatAktif) bukaChat(s.chatAktif); }
-  } catch (e) {}
-
-  btnRefresh.onclick = () => location.reload();
-</script>
+<script type="module" src="admin.js"></script>
 </body>
-</html>
+</html> 
