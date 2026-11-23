@@ -472,130 +472,152 @@ body {
     background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5));
 }
 
-/* DESAIN LIVE CHAT FULL SCREEN INTERAKTIF */
-.chat-fullscreen-overlay {
+/* =================== WIDGET CHAT (BUBBLE MELAYANG) =================== */
+/* Tombol bulat mengambang pojok kanan-bawah, di atas bottom-nav.
+   Menggantikan overlay full-screen lama supaya tidak lagi menumpuk di atas
+   bottom-nav. */
+.chat-fab {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #f4f6f9;
-    z-index: 2000; /* Berada di atas seluruh elemen termasuk Bottom Nav */
+    right: 16px;
+    bottom: 84px;                 /* di atas bottom-nav (65px) + jarak */
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0052cc, #7c3aed);
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 82, 204, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;                /* di atas bottom-nav (1000), di bawah jendela chat */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.chat-fab:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0, 82, 204, .45); }
+.chat-fab:active { transform: scale(0.94); }
+
+/* Badge pesan belum-dibaca di pojok tombol */
+.chat-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background: #ff3b30;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+    box-shadow: 0 0 0 2px #fff;
+    }
+
+/* Jendela chat mengambang (360x460). TIDAK menutupi layar penuh,
+   jadi bottom-nav tetap terlihat. */
+.chat-window {
+    position: fixed;
+    right: 16px;
+    bottom: 150px;                /* di atas FAB (84 + 56 + 10) */
+    width: min(360px, calc(100vw - 32px));
+    height: min(460px, calc(100vh - 240px));
+    background: #f4f6f9;
+    border-radius: 16px;
+    box-shadow: 0 18px 50px rgba(15, 40, 100, 0.28);
     display: flex;
     flex-direction: column;
-    transform: translateY(100%); /* Sembunyikan di bawah layar */
-    transition: transform 0.4s cubic-bezier(0.1, 0.76, 0.55, 0.94);
+    overflow: hidden;
+    z-index: 1600;
+    /* disembunyikan dulu, dimunculkan dgn kelas .aktif */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+}
+.chat-window.aktif {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
 }
 
-/* Kelas ini akan dipicu oleh JavaScript untuk memunculkan chat */
-.chat-fullscreen-overlay.aktif {
-    transform: translateY(0);
-}
-
-/* PERBAIKAN HEADER CHAT AGAR TOMBOL KEMBALI MUNCUL DI HP */
-.chat-header {
-    background-color: #0052cc;
-    color: white;
-    padding: 20px 20px 15px 20px; /* Ditambah padding atas agar tidak terlalu mepet ke atas layar */
+/* Header jendela chat */
+.chat-window-header {
+    background: linear-gradient(135deg, #0052cc, #7c3aed);
+    color: #fff;
+    padding: 14px;
+    padding-top: calc(env(safe-area-inset-top) + 14px);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    padding-top: calc(env(safe-area-inset-top) + 20px); /* Menghitung jarak aman kamera HP modern */
+    gap: 10px;
+    flex: 0 0 auto;
 }
-
-.admin-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.avatar-online {
-    width: 40px;
-    height: 40px;
-    background: white;
+.chat-admin-info { display: flex; align-items: center; gap: 10px; }
+.chat-admin-avatar {
+    width: 38px; height: 38px;
+    background: rgba(255, 255, 255, 0.18);
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
 }
-
-.admin-profile h4 {
-    font-size: 15px;
-    font-weight: 600;
+.chat-window-header h4 { font-size: 14px; font-weight: 600; margin: 0; }
+.chat-window-header p {
+    font-size: 11px; margin: 0; opacity: 0.9;
+    display: flex; align-items: center; gap: 5px;
 }
-
-.admin-profile p {
-    font-size: 11px;
-    opacity: 0.9;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
 .dot-online {
-    width: 8px;
-    height: 8px;
-    background-color: #25d366;
-    border-radius: 50%;
-    display: inline-block;
+    width: 8px; height: 8px;
+    background: #25d366; border-radius: 50%; display: inline-block;
 }
-
-/* Memperbesar tombol silang (Back) agar gampang di-klik jempol */
-.btn-tutup-chat {
-    background: rgba(255, 255, 255, 0.15); /* Memberi latar belakang lingkaran tipis agar estetik */
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
+.chat-close {
+    background: rgba(255, 255, 255, 0.18);
+    border: none; color: #fff;
+    width: 32px; height: 32px; border-radius: 50%;
+    font-size: 20px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto;
 }
+.chat-close:active { background: rgba(255, 255, 255, 0.32); }
 
-.btn-tutup-chat:active {
-    background: rgba(255, 255, 255, 0.3); /* Efek umpan balik saat ditekan */
-}
-
-/* Area Tempat Obrolan Berlangsung */
-.chat-body {
-    flex: 1;
-    padding: 20px;
+/* Body percakapan */
+.chat-window-body {
+    flex: 1 1 auto;
+    padding: 16px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+    background: #eef2f8;
 }
 
+/* Bubble pesan */
 .msg-bubble {
     max-width: 80%;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: 16px;
     font-size: 14px;
     line-height: 1.4;
-    position: relative;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    word-wrap: break-word;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
-
+.msg-bubble p { margin: 0; }
 .admin-msg {
-    background-color: white;
+    background: #fff;
     color: #1a202c;
     align-self: flex-start;
     border-top-left-radius: 4px;
 }
-
 .user-msg {
-    background-color: #0052cc;
-    color: white;
+    background: #0052cc;
+    color: #fff;
     align-self: flex-end;
     border-top-right-radius: 4px;
 }
-
 .msg-time {
     font-size: 10px;
     opacity: 0.6;
@@ -604,50 +626,47 @@ body {
     margin-top: 4px;
 }
 
-/* Kotak Input Pesan di Paling Bawah */
-.chat-footer {
-    background-color: white;
-    padding: 15px;
+/* Footer / kotak input */
+.chat-window-footer {
+    flex: 0 0 auto;
+    background: #fff;
+    padding: 10px;
     display: flex;
-    gap: 10px;
-    box-shadow: 0 -4px 10px rgba(0,0,0,0.03);
+    gap: 8px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
 }
-
-.chat-footer input {
+.chat-window-footer input {
     flex: 1;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1px solid #e2e8f0;
-    border-radius: 25px;
+    border-radius: 20px;
     outline: none;
     font-size: 14px;
-    background-color: #f7fafc;
+    background: #f7fafc;
+    font-family: inherit;
 }
-
-.chat-footer button {
-    width: 45px;
-    height: 45px;
-    background-color: #0052cc;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.chat-window-footer input:focus { border-color: #0052cc; background: #fff; }
+.chat-window-footer button {
+    width: 42px; height: 42px;
+    background: #0052cc; color: #fff;
+    border: none; border-radius: 50%;
+    font-size: 15px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto;
 }
+.chat-window-footer button:active { transform: scale(0.94); }
 
-/* Pembatasan layar desktop agar tetap berukuran HP di tengah */
-@media (min-width: 768px) {
-    .chat-fullscreen-overlay {
-        max-width: 480px;
-        left: 50%;
-        transform: translate(50%, 100%);
-    }
-    .chat-fullscreen-overlay.aktif {
-        transform: translate(-50%, 0);
+/* Layar sempit: jendela mengisi lebar tetapi TETAP mengambang
+   (bottom-nav tidak tertutup). */
+@media (max-width: 420px) {
+    .chat-window {
+        right: 8px;
+        left: 8px;
+        width: auto;
+        bottom: 148px;
     }
 }
+
 
 /* ================= PREMIUM TOUCH v2 ================= */
 html { scroll-behavior: smooth; }
@@ -907,4 +926,4 @@ section[id] { scroll-margin-top: 84px; }
       100% {
         border-color: red;
       }
-    }
+    } 
