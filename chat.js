@@ -151,9 +151,25 @@ onAuthStateChanged(auth, (user) => {
     chatId = null;
     signInAnonymously(auth).catch((err) => {
       console.warn("Auth anonim gagal:", err.code, err.message);
+      let pesan = "Chat belum bisa dibuka. ";
+      if (err.code === "auth/unauthorized-domain" || /unauthorized-domain/i.test(err.message || "")) {
+        pesan += "Domain ini (<b>" + location.hostname + "</b>) belum diizinkan Firebase. " +
+          "Buka Firebase Console → Authentication → Settings → Authorized domains → " +
+          "<b>Add domain</b>, lalu tambahkan <b>" + location.hostname + "</b>. " +
+          "(Tanpa ini, login admin juga akan gagal.)";
+      } else if (err.code === "auth/operation-not-allowed") {
+        pesan += "Metode <b>Anonymous</b> belum diaktifkan. Buka Firebase Console → " +
+          "Authentication → Sign-in method → Anonymous → <b>Enable</b> → Save.";
+      } else if (err.code === "auth/api-key-not-valid" || /api-key/i.test(err.code || "")) {
+        pesan += "API key Firebase tidak valid. Periksa kembali <b>firebaseConfig</b> di chat.js.";
+      } else if (err.code === "auth/network-request-failed") {
+        pesan += "Gangguan koneksi internet. Muat ulang halaman.";
+      } else {
+        pesan += "Kode error: <b>" + (err.code || "tidak diketahui") +
+          "</b>. Buka konsol browser (F12) untuk detail.";
+      }
       chatBody.innerHTML =
-        '<div class="msg-bubble admin-msg"><p>Chat belum bisa dibuka. ' +
-        'Pastikan "Anonymous" sudah diaktifkan di Firebase Console → Authentication → Sign-in method.</p></div>';
+        '<div class="msg-bubble admin-msg"><p>' + pesan + '</p></div>';
     });
   }
 });
