@@ -13,15 +13,21 @@
 </head>
 <body>
 
-<!-- ====== LAYAR LOGIN PIN ====== -->
+<!-- ====== LAYAR LOGIN (Email + Password Firebase Auth) ====== -->
 <div class="login-overlay" id="login-overlay">
-  <form class="login-card" id="login-form" autocomplete="off">
+  <form class="login-card" id="login-form" autocomplete="on">
     <div class="login-icon"><i class="fa-solid fa-lock"></i></div>
     <h2>Panel Admin Chat</h2>
-    <p class="login-sub">Masukkan PIN 6 digit untuk membalas chat pengunjung.</p>
-    <input type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
-           id="pin-input" class="pin-input" placeholder="6 digit" autocomplete="off" autofocus>
-    <p class="login-err" id="login-err" hidden>PIN salah. Coba lagi.</p>
+    <p class="login-sub">Masuk dengan email &amp; password admin yang sudah didaftarkan di Firebase.</p>
+    <div class="field">
+      <label for="email-input">Email</label>
+      <input type="email" id="email-input" placeholder="admin@email.com" autocomplete="username" required autofocus>
+    </div>
+    <div class="field">
+      <label for="password-input">Password</label>
+      <input type="password" id="password-input" placeholder="Password admin" autocomplete="current-password" required>
+    </div>
+    <p class="login-err" id="login-err" hidden>Email atau password salah.</p>
     <button type="submit" class="login-btn">Masuk</button>
   </form>
 </div>
