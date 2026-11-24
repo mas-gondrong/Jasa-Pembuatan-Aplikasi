@@ -1,20 +1,25 @@
-// chat.js — logika widget chat pengunjung (bubble melayang, BUKAN overlay full-screen).
+// chat.js — logika widget chat pengunjung.
 // Dimuat oleh index.html lewat <script type="module" src="chat.js"></script>.
 //
-// Perubahan utama vs. versi lama:
-//  - Jendela chat adalah bubble melayang 360x460, tidak menutupi layar penuh
-//    (bottom-nav tetap terlihat).
-//  - chatId lama di localStorage DIPERTAHANKAN, jadi pengunjung lama tetap
-//    melihat riwayat percakapannya.
-//  - Pesan sambutan hanya muncul saat percakapan masih kosong, supaya tidak
-//    menumpuk di atas riwayat pengunjung lama.
-//  - Ada badge belum-dibaca di tombol FAB saat admin membalas dan jendela
-//    sedang tertutup.
+// Versi ini (aman, pakai Firebase Auth):
+//  - Pengunjung login ANONIM (signInAnonymously) -> dapat uid stabil per perangkat.
+//  - chatId = user.uid, jadi tiap pengunjung hanya bisa akses percakapannya sendiri
+//    (diterapkan lewat database.rules.json: auth.uid === $chatId).
+//  - Jendela chat FULL-SCREEN saat dibuka (tombol FAB -> overlay seluruh layar,
+//    tombol X jelas untuk menutup).
+//  - Pesan sambutan hanya muncul saat percakapan masih kosong.
+//  - Badge belum-dibaca di FAB saat admin membalas dan jendela tertutup.
+//
+// Catatan: pengunjung lama (chatId lama "chat_..." di localStorage) akan memulai
+// percakapan baru di bawah uid anonimnya; riwayat lama tetap bisa dilihat admin.
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getDatabase, ref, push, set, runTransaction, onValue
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import {
+  getAuth, signInAnonymously, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // ====== KONFIGURASI FIREBASE (sama dengan project yang sudah ada) ======
 const firebaseConfig = {
@@ -27,15 +32,12 @@ const firebaseConfig = {
   appId: "1:30894586214:web:def6ccb3da69ebc26e30a7"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getDatabase(app);
+const auth = getAuth(app);
 
-// ====== ID chat unik per pengunjung (DIPERTAHANKAN untuk pengunjung lama) ======
-let chatId = localStorage.getItem("chatId");
-if (!chatId) {
-  chatId = "chat_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
-  localStorage.setItem("chatId", chatId);
-}
+// ====== ID chat = uid anonim pengunjung (diisi setelah auth) ======
+let chatId = null;
 
 const PESAN_SAMBUTAN =
   "Halo Kak! Selamat datang di Jasa Pembuatan Aplikasi UMKM. Ada yang bisa kami bantu untuk bisnis Anda hari ini?";
@@ -51,15 +53,20 @@ const chatBody   = document.getElementById('chat-box-messages');
 
 let jendelaTerbuka = false;
 
-// ====== Buka / tutup jendela ======
+// Tampilan awal sebelum auth selesai.
+chatBody.innerHTML = '<div class="msg-bubble admin-msg"><p>Menyiapkan chat...</p></div>';
+
+// ====== Buka / tutup jendela (full-screen) ======
 function bukaJendela() {
   jendela.classList.add('aktif');
   jendela.setAttribute('aria-hidden', 'false');
   jendelaTerbuka = true;
   sembunyikanBadge();
-  // Tandai pesan admin sudah dibaca pengunjung
-  set(ref(db, `chats/${chatId}/info/unreadVisitor`), 0).catch(() => {});
-  setTimeout(() => inputPesan.focus(), 250);
+  if (chatId) {
+    // Tandai pesan admin sudah dibaca pengunjung.
+    set(ref(db, `chats/${chatId}/info/unreadVisitor`), 0).catch(() => {});
+  }
+  setTimeout(() => inputPesan.focus(), 300);
 }
 function tutupJendela() {
   jendela.classList.remove('aktif');
@@ -68,8 +75,6 @@ function tutupJendela() {
 }
 fab.addEventListener('click', () => (jendelaTerbuka ? tutupJendela() : bukaJendela()));
 btnClose.addEventListener('click', tutupJendela);
-
-// Tutup dengan tombol Esc
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && jendelaTerbuka) tutupJendela();
 });
@@ -106,11 +111,11 @@ function buatBubble(teks, pengirim, waktu) {
 // ====== Listener pesan real-time ======
 let hentikanChat = null;
 function pasangChat() {
+  if (!chatId) return;
   if (hentikanChat) hentikanChat();
   hentikanChat = onValue(ref(db, `chats/${chatId}/messages`), (snap) => {
     chatBody.innerHTML = "";
     const adaPesan = snap.exists();
-    // Sambutan hanya saat percakapan masih kosong -> tidak menumpuk di riwayat.
     if (!adaPesan) {
       chatBody.appendChild(buatBubble(PESAN_SAMBUTAN, "admin", "Barusan"));
     }
@@ -122,11 +127,11 @@ function pasangChat() {
     chatBody.scrollTop = chatBody.scrollHeight;
   });
 }
-pasangChat();
 
-// ====== Listener info (untuk badge belum-dibaca pengunjung) ======
+// ====== Listener info (badge belum-dibaca) ======
 let hentikanInfo = null;
 function pasangInfo() {
+  if (!chatId) return;
   if (hentikanInfo) hentikanInfo();
   hentikanInfo = onValue(ref(db, `chats/${chatId}/info`), (snap) => {
     const info = snap.val() || {};
@@ -135,25 +140,44 @@ function pasangInfo() {
     else tampilkanBadge(unread);
   });
 }
-pasangInfo();
+
+// ====== Auth anonim pengunjung ======
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    chatId = user.uid;            // chatId terikat uid -> aman via rules
+    pasangChat();
+    pasangInfo();
+  } else {
+    chatId = null;
+    signInAnonymously(auth).catch((err) => {
+      console.warn("Auth anonim gagal:", err.code, err.message);
+      chatBody.innerHTML =
+        '<div class="msg-bubble admin-msg"><p>Chat belum bisa dibuka. ' +
+        'Pastikan "Anonymous" sudah diaktifkan di Firebase Console → Authentication → Sign-in method.</p></div>';
+    });
+  }
+});
 
 // ====== Kirim pesan ======
 async function kirimPesan() {
   const teks = inputPesan.value.trim();
   if (teks === "") return;
+  if (!chatId) {
+    alert("Chat sedang bersiap, coba beberapa detik lagi.");
+    inputPesan.value = "";
+    return;
+  }
   inputPesan.value = "";
   try {
     await push(ref(db, `chats/${chatId}/messages`), {
       teks, pengirim: "user", waktu: Date.now()
     });
-    // Update info + naikkan unreadAdmin (tanda ada pesan baru untuk admin)
-    // pakai transaction agar aman terhadap race condition.
     await runTransaction(ref(db, `chats/${chatId}/info`), (info) => {
       info = info || {};
-      info.lastMessage   = teks;
-      info.lastTime      = Date.now();
-      info.lastSender    = "user";
-      info.unreadAdmin   = (info.unreadAdmin || 0) + 1;
+      info.lastMessage = teks;
+      info.lastTime    = Date.now();
+      info.lastSender  = "user";
+      info.unreadAdmin = (info.unreadAdmin || 0) + 1;
       return info;
     });
   } catch (err) {
@@ -164,7 +188,7 @@ async function kirimPesan() {
 btnKirim.addEventListener('click', kirimPesan);
 inputPesan.addEventListener('keypress', (e) => { if (e.key === 'Enter') kirimPesan(); });
 
-// Pengunjung kembali ke tab -> pasang ulang listener (ambil data terbaru).
+// Pengunjung kembali ke tab -> pasang ulang listener.
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') { pasangChat(); pasangInfo(); }
+  if (document.visibilityState === 'visible' && chatId) { pasangChat(); pasangInfo(); }
 }); 
