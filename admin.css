@@ -258,3 +258,5 @@ body { background: var(--bg); color: var(--text); }
 @media (max-width: 420px) {
   .admin-logout span { display: none; }
   }
+
+[hidden] { display: none !important; }
