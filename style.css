@@ -514,34 +514,31 @@ body {
     line-height: 20px;
     text-align: center;
     box-shadow: 0 0 0 2px #fff;
-    }
+}
 
-/* Jendela chat mengambang (360x460). TIDAK menutupi layar penuh,
-   jadi bottom-nav tetap terlihat. */
+/* Jendela chat FULL-SCREEN. Saat dibuka menutupi seluruh layar (di atas
+   header, bottom-nav, dan FAB) dengan tombol X jelas untuk menutup. */
 .chat-window {
     position: fixed;
-    right: 16px;
-    bottom: 150px;                /* di atas FAB (84 + 56 + 10) */
-    width: min(360px, calc(100vw - 32px));
-    height: min(460px, calc(100vh - 240px));
+    inset: 0;                         /* top:0; right:0; bottom:0; left:0 */
+    width: 100%;
+    height: 100%;
     background: #f4f6f9;
-    border-radius: 16px;
-    box-shadow: 0 18px 50px rgba(15, 40, 100, 0.28);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    z-index: 1600;
-    /* disembunyikan dulu, dimunculkan dgn kelas .aktif */
+    z-index: 2000;                    /* di atas header(1000), bottom-nav(1000), FAB(1500) */
     opacity: 0;
     visibility: hidden;
-    transform: translateY(12px) scale(0.98);
+    transform: translateY(100%);      /* disembunyikan di bawah layar */
     pointer-events: none;
-    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+    transition: transform 0.32s cubic-bezier(0.1, 0.76, 0.55, 0.94),
+                opacity 0.32s ease, visibility 0.32s;
 }
 .chat-window.aktif {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
     pointer-events: auto;
 }
 
@@ -575,14 +572,16 @@ body {
     background: #25d366; border-radius: 50%; display: inline-block;
 }
 .chat-close {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.2);
     border: none; color: #fff;
-    width: 32px; height: 32px; border-radius: 50%;
-    font-size: 20px; line-height: 1; cursor: pointer;
+    width: 40px; height: 40px; border-radius: 50%;
+    font-size: 24px; line-height: 1; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     flex: 0 0 auto;
+    transition: background 0.18s;
 }
-.chat-close:active { background: rgba(255, 255, 255, 0.32); }
+.chat-close:hover { background: rgba(255, 255, 255, 0.35); }
+.chat-close:active { background: rgba(255, 255, 255, 0.45); transform: scale(0.92); }
 
 /* Body percakapan */
 .chat-window-body {
@@ -631,6 +630,7 @@ body {
     flex: 0 0 auto;
     background: #fff;
     padding: 10px;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
     display: flex;
     gap: 8px;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
@@ -656,14 +656,18 @@ body {
 }
 .chat-window-footer button:active { transform: scale(0.94); }
 
-/* Layar sempit: jendela mengisi lebar tetapi TETAP mengambang
-   (bottom-nav tidak tertutup). */
-@media (max-width: 420px) {
+/* Desktop: jendela full-HEIGHT dalam kolom 480px (mengikuti tata letak app
+   yang sudah di-center). Sekaligus memperbaiki bug transform lama
+   (translate(50%,100%) -> seharusnya -50%). */
+@media (min-width: 768px) {
     .chat-window {
-        right: 8px;
-        left: 8px;
-        width: auto;
-        bottom: 148px;
+        left: 50%;
+        right: auto;
+        width: 480px;
+        transform: translate(-50%, 100%);
+    }
+    .chat-window.aktif {
+        transform: translate(-50%, 0);
     }
 }
 
