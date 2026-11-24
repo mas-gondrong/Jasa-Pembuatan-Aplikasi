@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jasa_aplikasi_v74';
+const CACHE_NAME = 'jasa_aplikasi_v75';
 const urlsToCache = [
   '/Jasa-Pembuatan-Aplikasi/',
   '/Jasa-Pembuatan-Aplikasi/index.html',
