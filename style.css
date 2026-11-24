@@ -465,7 +465,7 @@ body {
 }
 .premium-graphic {
     color: #ffffff !important;
-}
+    }
 
 /* Mempergelap lapisan transparan di atas foto agar tulisan tidak tenggelam */
 .portfolio-bg-overlay {
@@ -705,7 +705,7 @@ body {
   100% { background-position: 0% 50%; }
 }
 
-/* ===== LOGO v2.1: PINK BENDERANG + PUTIH BERCAHAYA ===== */
+/* ===== LOGO v2.1: PINK BINDERANG + PUTIH BERCAHAYA ===== */
 .app-header .logo {
   color: #ff3ec8 !important;
   text-shadow: 0 0 14px rgba(255, 62, 200, .75);
@@ -930,4 +930,4 @@ section[id] { scroll-margin-top: 84px; }
       100% {
         border-color: red;
       }
-    } 
+    }
