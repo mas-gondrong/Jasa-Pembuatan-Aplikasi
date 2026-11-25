@@ -260,3 +260,21 @@ body { background: var(--bg); color: var(--text); }
   }
 
 [hidden] { display: none !important; }
+
+
+/* ===================== NOTIFIKASI SUARA + AVATAR MONOGRAM ===================== */
+/* Tombol bel di topbar (disisipkan admin.js) untuk menyalakan/mematikan ping. */
+.admin-mute {
+  background: rgba(255,255,255,.15);
+  border: none; color: #fff;
+  width: 36px; height: 36px; border-radius: 10px;
+  font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  margin-right: 8px; flex: 0 0 auto;
+  transition: background .2s, opacity .2s;
+}
+.admin-mute:hover { background: rgba(255,255,255,.28); }
+.admin-mute.mati { opacity: .55; }
+
+/* Avatar sesi: huruf depan nama pengunjung (monogram) — tebal, putih. */
+.sesi-avatar { font-weight: 700; }
