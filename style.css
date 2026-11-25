@@ -931,3 +931,18 @@ section[id] { scroll-margin-top: 84px; }
         border-color: red;
       }
     }
+
+     
+/* ===== Bubble hint (gerbang nama pengunjung di widget chat) ===== */
+/* Tampil sebagai bubble tipis di tengah saat pengunjung belum menulis namanya. */
+.msg-bubble.msg-hint {
+  background: #fff8e1;
+  border: 1px dashed #f0c040;
+  box-shadow: none;
+  font-size: 13px;
+  font-style: italic;
+  color: #7a5b00;
+  align-self: center;
+  max-width: 88%;
+  border-radius: 14px;
+}
