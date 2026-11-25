@@ -1,14 +1,15 @@
 // chat.js — logika widget chat pengunjung.
 // Dimuat oleh index.html lewat <script type="module" src="chat.js"></script>.
 //
-// Versi ini (aman, pakai Firebase Auth):
+// Versi ini (aman, pakai Firebase Auth + gerbang nama tanpa login):
 //  - Pengunjung login ANONIM (signInAnonymously) -> dapat uid stabil per perangkat.
 //  - chatId = user.uid, jadi tiap pengunjung hanya bisa akses percakapannya sendiri
 //    (diterapkan lewat database.rules.json: auth.uid === $chatId).
-//  - Jendela chat FULL-SCREEN saat dibuka (tombol FAB -> overlay seluruh layar,
-//    tombol X jelas untuk menutup).
-//  - Pesan sambutan hanya muncul saat percakapan masih kosong.
-//  - Badge belum-dibaca di FAB saat admin membalas dan jendela tertutup.
+//  - SEBELUM kirim pesan pertama, pengunjung diminta menulis NAMA (satu kolom,
+//    tanpa password, tanpa akun). Nama disimpan di info.nama + localStorage,
+//    lalu ditampilkan di panel admin (bukan "Pengunjung kode").
+//  - Jendela chat FULL-SCREEN saat dibuka; pesan sambutan hanya muncul saat
+//    percakapan masih kosong; badge belum-dibaca di FAB saat admin membalas.
 //
 // Catatan: pengunjung lama (chatId lama "chat_..." di localStorage) akan memulai
 // percakapan baru di bawah uid anonimnya; riwayat lama tetap bisa dilihat admin.
@@ -41,6 +42,8 @@ let chatId = null;
 
 const PESAN_SAMBUTAN =
   "Halo Kak! Selamat datang di Jasa Pembuatan Aplikasi UMKM. Ada yang bisa kami bantu untuk bisnis Anda hari ini?";
+const PESAN_HINT_NAMA =
+  "Sebelum mulai, tulis nama Anda di kolom bawah ya, Kak — supaya kami bisa menyapa Anda dengan hangat.";
 
 // ====== Elemen UI ======
 const fab        = document.getElementById('chat-fab');
@@ -53,8 +56,27 @@ const chatBody   = document.getElementById('chat-box-messages');
 
 let jendelaTerbuka = false;
 
+// ====== Nama pengunjung (tanpa login) ======
+const KEY_NAMA = 'chat_nama_pengunjung';
+let namaPengunjung = '';
+try {
+  namaPengunjung = (localStorage.getItem(KEY_NAMA) || '').trim().slice(0, 30);
+} catch (e) { namaPengunjung = ''; }
+
+function updateInputState() {
+  if (namaPengunjung) {
+    inputPesan.placeholder = "Tulis pesan…";
+  } else {
+    inputPesan.placeholder = "Tulis nama Anda dulu…";
+  }
+  inputPesan.setAttribute('autocomplete', 'off');
+}
+updateInputState();
+
 // Tampilan awal sebelum auth selesai.
 chatBody.innerHTML = '<div class="msg-bubble admin-msg"><p>Menyiapkan chat...</p></div>';
+
+let lastMessagesSnap = null;   // snapshot pesan terakhir, untuk re-render setelah nama diisi
 
 // ====== Buka / tutup jendela (full-screen) ======
 function bukaJendela() {
@@ -63,7 +85,6 @@ function bukaJendela() {
   jendelaTerbuka = true;
   sembunyikanBadge();
   if (chatId) {
-    // Tandai pesan admin sudah dibaca pengunjung.
     set(ref(db, `chats/${chatId}/info/unreadVisitor`), 0).catch(() => {});
   }
   setTimeout(() => inputPesan.focus(), 300);
@@ -107,6 +128,34 @@ function buatBubble(teks, pengirim, waktu) {
   b.appendChild(s);
   return b;
 }
+function buatBubbleHint(teks) {
+  const b = document.createElement('div');
+  b.className = 'msg-bubble admin-msg msg-hint';
+  const p = document.createElement('p');
+  p.textContent = teks;
+  b.appendChild(p);
+  return b;
+}
+
+function renderChatBody() {
+  chatBody.innerHTML = "";
+  const snap = lastMessagesSnap;
+  const adaPesan = snap && snap.exists();
+  if (!adaPesan) {
+    chatBody.appendChild(buatBubble(PESAN_SAMBUTAN, "admin", "Barusan"));
+  } else {
+    snap.forEach((child) => {
+      const d = child.val();
+      if (!d || !d.teks) return;
+      chatBody.appendChild(buatBubble(d.teks, d.pengirim, formatWaktu(d.waktu)));
+    });
+  }
+  // Hint nama hanya tampil selama pengunjung belum menulis namanya.
+  if (!namaPengunjung) {
+    chatBody.appendChild(buatBubbleHint(PESAN_HINT_NAMA));
+  }
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
 
 // ====== Listener pesan real-time ======
 let hentikanChat = null;
@@ -114,17 +163,8 @@ function pasangChat() {
   if (!chatId) return;
   if (hentikanChat) hentikanChat();
   hentikanChat = onValue(ref(db, `chats/${chatId}/messages`), (snap) => {
-    chatBody.innerHTML = "";
-    const adaPesan = snap.exists();
-    if (!adaPesan) {
-      chatBody.appendChild(buatBubble(PESAN_SAMBUTAN, "admin", "Barusan"));
-    }
-    snap.forEach((child) => {
-      const d = child.val();
-      if (!d || !d.teks) return;
-      chatBody.appendChild(buatBubble(d.teks, d.pengirim, formatWaktu(d.waktu)));
-    });
-    chatBody.scrollTop = chatBody.scrollHeight;
+    lastMessagesSnap = snap;
+    renderChatBody();
   });
 }
 
@@ -160,6 +200,11 @@ onAuthStateChanged(auth, (user) => {
       } else if (err.code === "auth/operation-not-allowed") {
         pesan += "Metode <b>Anonymous</b> belum diaktifkan. Buka Firebase Console → " +
           "Authentication → Sign-in method → Anonymous → <b>Enable</b> → Save.";
+      } else if (err.code === "auth/admin-restricted-operation") {
+        pesan += "Metode <b>Anonymous</b> belum diaktifkan, atau opsi <b>Enable create (sign-up)</b> " +
+          "dimatikan di Firebase. Buka Firebase Console → Authentication → <b>Sign-in method</b> → " +
+          "<b>Anonymous</b> → <b>Enable</b> → Save. Lalu buka tab <b>Settings</b> → pastikan " +
+          "<b>Enable create (sign-up)</b> aktif (ON).";
       } else if (err.code === "auth/api-key-not-valid" || /api-key/i.test(err.code || "")) {
         pesan += "API key Firebase tidak valid. Periksa kembali <b>firebaseConfig</b> di chat.js.";
       } else if (err.code === "auth/network-request-failed") {
@@ -174,10 +219,31 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// ====== Kirim pesan ======
+// ====== Kirim: gerbang nama dulu, lalu pesan ======
 async function kirimPesan() {
   const teks = inputPesan.value.trim();
   if (teks === "") return;
+
+  // --- Tahap 1: belum ada nama -> simpan sebagai nama (belum kirim pesan) ---
+  if (!namaPengunjung) {
+    const nama = teks.slice(0, 30);
+    namaPengunjung = nama;
+    try { localStorage.setItem(KEY_NAMA, nama); } catch (e) {}
+    inputPesan.value = "";
+    updateInputState();
+    if (chatId) {
+      runTransaction(ref(db, `chats/${chatId}/info`), (info) => {
+        info = info || {};
+        info.nama = nama;
+        return info;
+      }).catch(() => {});
+    }
+    renderChatBody();   // hilangkan bubble hint
+    setTimeout(() => inputPesan.focus(), 30);
+    return;
+  }
+
+  // --- Tahap 2: nama sudah ada -> kirim pesan ---
   if (!chatId) {
     alert("Chat sedang bersiap, coba beberapa detik lagi.");
     inputPesan.value = "";
@@ -190,6 +256,7 @@ async function kirimPesan() {
     });
     await runTransaction(ref(db, `chats/${chatId}/info`), (info) => {
       info = info || {};
+      info.nama = namaPengunjung;        // pastikan nama tetap tercatat
       info.lastMessage = teks;
       info.lastTime    = Date.now();
       info.lastSender  = "user";
@@ -207,4 +274,4 @@ inputPesan.addEventListener('keypress', (e) => { if (e.key === 'Enter') kirimPes
 // Pengunjung kembali ke tab -> pasang ulang listener.
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && chatId) { pasangChat(); pasangInfo(); }
-}); 
+});
