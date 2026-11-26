@@ -43,9 +43,10 @@
     <a href="#beranda" class="drawer-item"><i class="fa-solid fa-house"></i> Beranda</a>
     <a href="#layanan" class="drawer-item"><i class="fa-solid fa-layer-group"></i> Layanan</a>
     <a href="#portofolio" class="drawer-item"><i class="fa-solid fa-images"></i> Galeri</a>
-    <a href="#testimoni" class="drawer-item"><i class="fa-solid fa-star"></i> Testimoni</a>
+    <a href="#" class="drawer-item" id="drawer-testimoni"><i class="fa-solid fa-star"></i> Testimoni</a>
     <a href="#tentang" class="drawer-item"><i class="fa-solid fa-circle-info"></i> Tentang Kami</a>
-
+    <a href="admin.html" class="drawer-item"><i class="fa-solid fa-user-shield"></i> Panel Admin</a>
+    
     <div class="drawer-hubungi">
         <h4>Hubungi Kami</h4>
         <div class="hubungi-buttons">
@@ -284,22 +285,7 @@
     </div>
 </section>
 
-    <!-- TESTIMONI -->
-    <section class="services-section" id="testimoni">
-    <h2 class="section-title">Testimoni Klien</h2>
-    <div class="price-grid">
-        <div class="price-card">
-            <p>⭐⭐⭐⭐⭐</p>
-            <p>"Website toko kami langsung terlihat profesional. Pembeli makin percaya!"</p>
-            <small>— Ibu Rina, Toko Kue Batam</small>
-        </div>
-        <div class="price-card">
-            <p>⭐⭐⭐⭐⭐</p>
-            <p>"Aplikasinya rapi, pengerjaannya cepat. Recommended untuk UMKM!"</p>
-            <small>— Pak Dedi, Jasa Service AC</small>
-        </div>
-    </div>
-</section>
+        <!-- (Section testimoni statis dihapus; sekarang testimoni interaktif via overlay full-screen yang dibuka dari menu laci) -->
 
 <!-- TENTANG KAMI -->
 <section class="services-section" id="tentang">
@@ -349,6 +335,31 @@
             <input type="text" id="input-pesan-user" placeholder="Ketik pesan konsultasi Anda..." autocomplete="off">
             <button id="btn-kirim-pesan" aria-label="Kirim pesan"><i class="fa-solid fa-paper-plane"></i></button>
         </footer>
+    </section>
+
+    <!-- ===== HALAMAN TESTIMONI FULL-SCREEN ===== -->
+    <section class="testimoni-overlay" id="testimoni-overlay" aria-hidden="true">
+      <div class="testimoni-panel">
+        <header class="testimoni-head">
+          <h3><i class="fa-solid fa-star"></i> Testimoni Klien</h3>
+          <button class="testimoni-close" id="testimoni-close" aria-label="Tutup">&times;</button>
+        </header>
+        <div class="testimoni-body">
+          <form class="testimoni-form" id="testimoni-form">
+            <h4>Berbagi Pengalaman Anda</h4>
+            <p class="testimoni-sub">Pendapat Anda membantu UMKM lainnya.</p>
+            <input type="text" id="testimoni-nama" placeholder="Nama Anda" maxlength="30" required autocomplete="off">
+            <label class="testimoni-label">Rating</label>
+            <div class="testimoni-bintang" id="testimoni-bintang" role="radiogroup" aria-label="Rating bintang 1-5"></div>
+            <textarea id="testimoni-teks" placeholder="Tulis pengalaman Anda selama menggunakan layanan kami..." maxlength="300" required></textarea>
+            <button type="submit" class="testimoni-kirim"><i class="fa-solid fa-paper-plane"></i> Kirim Testimoni</button>
+            <p class="testimoni-status" id="testimoni-status" hidden></p>
+          </form>
+          <div class="testimoni-list" id="testimoni-list">
+            <p class="testimoni-kosong">Memuat testimoni...</p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <script>
@@ -402,6 +413,7 @@
     </script>
 
     <script type="module" src="chat.js"></script>
+    <script type="module" src="testimoni.js"></script>
     <!-- ... kode HTML lainnya ... -->
 
     <!-- Script Registrasi Service Worker -->
